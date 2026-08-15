@@ -243,6 +243,33 @@
             font-size: 0.7rem;
             color: #888;
         }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+        }
+        .badge-success {
+            background: #00ff8844;
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        .badge-error {
+            background: #ff444444;
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+        .badge-loading {
+            background: #ffaa0044;
+            color: #ffaa00;
+            border: 1px solid #ffaa00;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
@@ -267,22 +294,24 @@
 <body>
 
 <div class="container">
-    <h1>🤖 Twitch Bot Multi-Conta</h1>
+    <h1>🤖 Twitch Bot <span id="libraryStatus" class="status-badge badge-loading">⏳ Carregando...</span></h1>
 
     <!-- Área de login -->
     <div class="login-area">
-        <button id="loginBtn" class="btn-twitch">🔑 Login com Twitch (OAuth)</button>
+        <button id="loginBtn" class="btn-twitch" disabled>🔑 Login com Twitch (OAuth)</button>
         <div style="margin-top: 10px; color: #888; font-size: 0.8rem;">
             <span style="color: #ffaa00;">⚠️ Se aparecer erro de 2FA, use a opção abaixo com token manual.</span>
         </div>
 
-        <!-- Campo para colar token manualmente -->
         <div class="manual-token-area">
             <input type="text" id="manualTokenInput" placeholder="Cole o token aqui (ex: oauth:xxxxxxxx)">
             <input type="text" id="manualUsernameInput" placeholder="Nome de usuário (ex: meu_bot)" style="flex:0.5; min-width:150px;">
             <button class="btn-add-token" id="addTokenBtn">➕ Adicionar com Token</button>
         </div>
         <div class="small">Gere um token em <a href="https://twitchtokengenerator.com" target="_blank" style="color:#9146ff;">twitchtokengenerator.com</a> (Bot Chat Token)</div>
+        <div style="margin-top:10px;">
+            <button id="reloadLibraryBtn" style="background:#333; border:none; color:#fff; padding:6px 15px; border-radius:6px; cursor:pointer;">🔄 Recarregar Biblioteca</button>
+        </div>
     </div>
 
     <!-- Configuração do canal alvo -->
@@ -306,39 +335,106 @@
     </div>
 </div>
 
-<!-- Carregamento dinâmico do tmi.js -->
+<!-- Script de carregamento da biblioteca com fallback -->
 <script>
-    (function loadTmi() {
-        const cdns = [
-            'https://cdn.jsdelivr.net/npm/tmi.js@1.8.5/tmi.min.js',
-            'https://unpkg.com/tmi.js@1.8.5/tmi.min.js'
-        ];
-        let index = 0;
+    (function() {
+        let libraryLoaded = false;
+        const statusBadge = document.getElementById('libraryStatus');
+        const loginBtn = document.getElementById('loginBtn');
 
-        function tryLoad() {
-            if (index >= cdns.length) {
-                addLog('❌ Falha ao carregar tmi.js. Verifique sua internet.', 'error');
-                document.getElementById('loginBtn').disabled = true;
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = cdns[index];
-            script.onload = function() {
-                if (typeof tmi !== 'undefined') {
-                    addLog('✅ Biblioteca tmi.js carregada com sucesso.', 'success');
-                    document.getElementById('loginBtn').disabled = false;
-                } else {
+        function updateStatus(text, type) {
+            statusBadge.textContent = text;
+            statusBadge.className = 'status-badge';
+            if (type === 'success') statusBadge.classList.add('badge-success');
+            else if (type === 'error') statusBadge.classList.add('badge-error');
+            else statusBadge.classList.add('badge-loading');
+        }
+
+        function loadTmiFromCDN(callback) {
+            const cdns = [
+                'https://cdn.jsdelivr.net/npm/tmi.js@1.8.5/tmi.min.js',
+                'https://unpkg.com/tmi.js@1.8.5/tmi.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/tmi.js/1.8.5/tmi.min.js'
+            ];
+            let index = 0;
+
+            function tryLoad() {
+                if (index >= cdns.length) {
+                    callback(new Error('Todos os CDNs falharam'));
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = cdns[index];
+                script.onload = function() {
+                    if (typeof tmi !== 'undefined') {
+                        callback(null);
+                    } else {
+                        index++;
+                        tryLoad();
+                    }
+                };
+                script.onerror = function() {
                     index++;
                     tryLoad();
-                }
-            };
-            script.onerror = function() {
-                index++;
-                tryLoad();
-            };
-            document.head.appendChild(script);
+                };
+                document.head.appendChild(script);
+            }
+            tryLoad();
         }
-        tryLoad();
+
+        function loadLibrary() {
+            updateStatus('⏳ Carregando...', 'loading');
+            loadTmiFromCDN(function(err) {
+                if (err) {
+                    updateStatus('❌ Falha ao carregar', 'error');
+                    loginBtn.disabled = true;
+                    addLog('❌ tmi.js não pôde ser carregado de nenhum CDN.', 'error');
+                    addLog('🔄 Clique em "Recarregar Biblioteca" para tentar novamente.', 'info');
+                    libraryLoaded = false;
+                } else {
+                    updateStatus('✅ Carregado', 'success');
+                    loginBtn.disabled = false;
+                    addLog('✅ Biblioteca tmi.js carregada com sucesso.', 'success');
+                    libraryLoaded = true;
+                }
+            });
+        }
+
+        // Expõe a função para recarregar manualmente
+        window.reloadTmiLibrary = loadLibrary;
+
+        // Inicia carregamento
+        loadLibrary();
+
+        // Botão recarregar
+        document.getElementById('reloadLibraryBtn').addEventListener('click', function() {
+            addLog('🔄 Tentando recarregar a biblioteca...', 'info');
+            loadLibrary();
+        });
+
+        // Adiciona log (já existe função addLog definida depois, mas usamos um placeholder)
+        window.addLog = function(message, type) {
+            const logArea = document.getElementById('logArea');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type || 'info'}`;
+            entry.textContent = message;
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+        };
+
+        // Verifica periodicamente se a biblioteca foi carregada (fallback)
+        let attempts = 0;
+        const interval = setInterval(function() {
+            if (typeof tmi !== 'undefined' && !libraryLoaded) {
+                libraryLoaded = true;
+                updateStatus('✅ Carregado', 'success');
+                loginBtn.disabled = false;
+                addLog('✅ tmi.js detectado (verificação periódica).', 'success');
+                clearInterval(interval);
+            }
+            attempts++;
+            if (attempts > 20) clearInterval(interval);
+        }, 1000);
     })();
 </script>
 
@@ -358,7 +454,7 @@
     let targetChannel = document.getElementById('targetChannel').value.trim() || 'lpxstreaming';
 
     // ============================================================
-    // FUNÇÕES DE LOG
+    // FUNÇÕES DE LOG (sobrescreve a anterior)
     // ============================================================
     function addLog(message, type = 'info', accountId = null) {
         const logArea = document.getElementById('logArea');
@@ -375,13 +471,15 @@
             logArea.removeChild(logArea.firstChild);
         }
     }
+    // Substitui o placeholder
+    window.addLog = addLog;
 
     // ============================================================
     // OAuth LOGIN
     // ============================================================
     document.getElementById('loginBtn').addEventListener('click', function() {
         if (!CLIENT_ID || CLIENT_ID === 'seu_client_id_aqui') {
-            addLog('❌ Configure o CLIENT_ID no código (linha 252).', 'error');
+            addLog('❌ Configure o CLIENT_ID no código (linha 300).', 'error');
             return;
         }
         const authUrl =
@@ -427,10 +525,9 @@
     }
 
     // ============================================================
-    // ADICIONAR CONTA (via OAuth ou manual)
+    // ADICIONAR CONTA
     // ============================================================
     function addAccount(token, user) {
-        // Se o token não começar com oauth:, adiciona
         if (!token.startsWith('oauth:')) {
             token = 'oauth:' + token;
         }
@@ -449,7 +546,6 @@
         addLog(`✅ Conta ${username} adicionada!`, 'success', id);
     }
 
-    // Adicionar manualmente (via token e nome)
     function addManualAccount(token, username) {
         if (!token || !username) {
             addLog('⚠️ Preencha o token e o nome de usuário.', 'error');
@@ -538,7 +634,7 @@
         const acc = accounts[id];
         if (!acc) return;
         if (typeof tmi === 'undefined') {
-            addLog('❌ tmi.js não carregado. Recarregue a página.', 'error', id);
+            addLog('❌ tmi.js não carregado. Recarregue a página ou clique em "Recarregar Biblioteca".', 'error', id);
             return;
         }
 
@@ -655,7 +751,6 @@
     // EVENTOS DO DOM
     // ============================================================
 
-    // Definir canal alvo
     document.getElementById('setChannelBtn').addEventListener('click', function() {
         const input = document.getElementById('targetChannel');
         const val = input.value.trim();
@@ -668,7 +763,6 @@
         }
     });
 
-    // Adicionar conta manual
     document.getElementById('addTokenBtn').addEventListener('click', function() {
         const tokenInput = document.getElementById('manualTokenInput');
         const userInput = document.getElementById('manualUsernameInput');
@@ -689,7 +783,6 @@
         userInput.value = '';
     });
 
-    // Limpar logs
     document.getElementById('clearLogsBtn').addEventListener('click', function(e) {
         e.preventDefault();
         const logArea = document.getElementById('logArea');
@@ -702,7 +795,6 @@
     // ============================================================
     handleOAuthRedirect();
 
-    // Carregar canal salvo
     const savedChannel = localStorage.getItem('twitchBotChannel');
     if (savedChannel) {
         document.getElementById('targetChannel').value = savedChannel;
@@ -710,7 +802,6 @@
         addLog(`📡 Canal carregado: #${targetChannel}`, 'info');
     }
 
-    // Salvar canal quando alterado
     document.getElementById('targetChannel').addEventListener('change', function() {
         localStorage.setItem('twitchBotChannel', this.value.trim());
     });
@@ -724,8 +815,6 @@
     window.addManualAccount = addManualAccount;
 
     console.log('🤖 Sistema de bot multi-conta carregado.');
-    console.log('📌 Para usar sem 2FA, gere um token em twitchtokengenerator.com e cole manualmente.');
 </script>
-
 </body>
 </html>
