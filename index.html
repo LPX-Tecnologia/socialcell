@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch Bot - Login com Token</title>
+    <title>Twitch Bot Multi-Conta - WebSocket</title>
     <style>
         * {
             margin: 0;
@@ -18,11 +18,11 @@
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: #1a1a1a;
             border-radius: 20px;
-            padding: 30px;
+            padding: 25px;
             border: 2px solid #9146ff;
             box-shadow: 0 0 40px rgba(145, 70, 255, 0.2);
         }
@@ -31,6 +31,10 @@
             text-align: center;
             color: #9146ff;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         .login-area {
             text-align: center;
@@ -55,10 +59,6 @@
             transform: scale(1.05);
             box-shadow: 0 0 20px rgba(145, 70, 255, 0.5);
         }
-        .btn-twitch:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
         .manual-token-area {
             margin-top: 15px;
             display: flex;
@@ -69,7 +69,7 @@
         }
         .manual-token-area input {
             flex: 1;
-            min-width: 250px;
+            min-width: 200px;
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #333;
@@ -205,7 +205,7 @@
             background: #0a0a0a;
             border-radius: 10px;
             padding: 10px;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             font-family: monospace;
             font-size: 0.8rem;
@@ -228,6 +228,9 @@
         .log-entry.chat {
             color: #ffaa00;
         }
+        .log-entry.self {
+            color: #9146ff;
+        }
         .empty-message {
             color: #666;
             text-align: center;
@@ -242,33 +245,6 @@
         .small {
             font-size: 0.7rem;
             color: #888;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            margin-left: 10px;
-        }
-        .badge-success {
-            background: #00ff8844;
-            color: #00ff88;
-            border: 1px solid #00ff88;
-        }
-        .badge-error {
-            background: #ff444444;
-            color: #ff4444;
-            border: 1px solid #ff4444;
-        }
-        .badge-loading {
-            background: #ffaa0044;
-            color: #ffaa00;
-            border: 1px solid #ffaa00;
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
         }
         @media (max-width: 600px) {
             .container {
@@ -294,40 +270,28 @@
 <body>
 
 <div class="container">
-    <h1>🤖 Twitch Bot <span id="libraryStatus" class="status-badge badge-loading">⏳ Carregando...</span></h1>
+    <h1>🤖 Twitch Bot Multi-Conta</h1>
 
-    <!-- Área de login -->
     <div class="login-area">
-        <button id="loginBtn" class="btn-twitch" disabled>🔑 Login com Twitch (OAuth)</button>
-        <div style="margin-top: 10px; color: #888; font-size: 0.8rem;">
-            <span style="color: #ffaa00;">⚠️ Se aparecer erro de 2FA, use a opção abaixo com token manual.</span>
-        </div>
-
         <div class="manual-token-area">
-            <input type="text" id="manualTokenInput" placeholder="Cole o token aqui (ex: oauth:xxxxxxxx)">
-            <input type="text" id="manualUsernameInput" placeholder="Nome de usuário (ex: meu_bot)" style="flex:0.5; min-width:150px;">
-            <button class="btn-add-token" id="addTokenBtn">➕ Adicionar com Token</button>
+            <input type="text" id="manualTokenInput" placeholder="Token OAuth (ex: oauth:xxxxxxxx)">
+            <input type="text" id="manualUsernameInput" placeholder="Nome do bot (ex: meu_bot)">
+            <button class="btn-add-token" id="addTokenBtn">➕ Adicionar Bot</button>
         </div>
-        <div class="small">Gere um token em <a href="https://twitchtokengenerator.com" target="_blank" style="color:#9146ff;">twitchtokengenerator.com</a> (Bot Chat Token)</div>
-        <div style="margin-top:10px;">
-            <button id="reloadLibraryBtn" style="background:#333; border:none; color:#fff; padding:6px 15px; border-radius:6px; cursor:pointer;">🔄 Recarregar Biblioteca</button>
-        </div>
+        <div class="small">Gere um token em <a href="https://twitchtokengenerator.com" target="_blank" style="color:#9146ff;">twitchtokengenerator.com</a> (Bot Chat Token) e cole acima.</div>
     </div>
 
-    <!-- Configuração do canal alvo -->
     <div class="config-area">
         <input type="text" id="targetChannel" placeholder="Canal alvo (sem #)" value="lpxstreaming">
         <button id="setChannelBtn" class="btn-twitch" style="background: #333; color:#fff; padding:10px 20px;">Definir Canal</button>
     </div>
 
-    <!-- Lista de contas -->
     <div id="accountsContainer" class="accounts-list">
         <div class="empty-message">Nenhuma conta conectada. Adicione uma conta acima.</div>
     </div>
 
-    <!-- Logs -->
     <div id="logArea" class="log-area">
-        <div class="log-entry info">🚀 Sistema pronto. Adicione uma conta para começar.</div>
+        <div class="log-entry info">🚀 Sistema pronto usando WebSocket nativo. Adicione uma conta.</div>
     </div>
 
     <div class="footer">
@@ -335,127 +299,23 @@
     </div>
 </div>
 
-<!-- Script de carregamento da biblioteca com fallback -->
 <script>
-    (function() {
-        let libraryLoaded = false;
-        const statusBadge = document.getElementById('libraryStatus');
-        const loginBtn = document.getElementById('loginBtn');
-
-        function updateStatus(text, type) {
-            statusBadge.textContent = text;
-            statusBadge.className = 'status-badge';
-            if (type === 'success') statusBadge.classList.add('badge-success');
-            else if (type === 'error') statusBadge.classList.add('badge-error');
-            else statusBadge.classList.add('badge-loading');
-        }
-
-        function loadTmiFromCDN(callback) {
-            const cdns = [
-                'https://cdn.jsdelivr.net/npm/tmi.js@1.8.5/tmi.min.js',
-                'https://unpkg.com/tmi.js@1.8.5/tmi.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tmi.js/1.8.5/tmi.min.js'
-            ];
-            let index = 0;
-
-            function tryLoad() {
-                if (index >= cdns.length) {
-                    callback(new Error('Todos os CDNs falharam'));
-                    return;
-                }
-                const script = document.createElement('script');
-                script.src = cdns[index];
-                script.onload = function() {
-                    if (typeof tmi !== 'undefined') {
-                        callback(null);
-                    } else {
-                        index++;
-                        tryLoad();
-                    }
-                };
-                script.onerror = function() {
-                    index++;
-                    tryLoad();
-                };
-                document.head.appendChild(script);
-            }
-            tryLoad();
-        }
-
-        function loadLibrary() {
-            updateStatus('⏳ Carregando...', 'loading');
-            loadTmiFromCDN(function(err) {
-                if (err) {
-                    updateStatus('❌ Falha ao carregar', 'error');
-                    loginBtn.disabled = true;
-                    addLog('❌ tmi.js não pôde ser carregado de nenhum CDN.', 'error');
-                    addLog('🔄 Clique em "Recarregar Biblioteca" para tentar novamente.', 'info');
-                    libraryLoaded = false;
-                } else {
-                    updateStatus('✅ Carregado', 'success');
-                    loginBtn.disabled = false;
-                    addLog('✅ Biblioteca tmi.js carregada com sucesso.', 'success');
-                    libraryLoaded = true;
-                }
-            });
-        }
-
-        // Expõe a função para recarregar manualmente
-        window.reloadTmiLibrary = loadLibrary;
-
-        // Inicia carregamento
-        loadLibrary();
-
-        // Botão recarregar
-        document.getElementById('reloadLibraryBtn').addEventListener('click', function() {
-            addLog('🔄 Tentando recarregar a biblioteca...', 'info');
-            loadLibrary();
-        });
-
-        // Adiciona log (já existe função addLog definida depois, mas usamos um placeholder)
-        window.addLog = function(message, type) {
-            const logArea = document.getElementById('logArea');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type || 'info'}`;
-            entry.textContent = message;
-            logArea.appendChild(entry);
-            logArea.scrollTop = logArea.scrollHeight;
-        };
-
-        // Verifica periodicamente se a biblioteca foi carregada (fallback)
-        let attempts = 0;
-        const interval = setInterval(function() {
-            if (typeof tmi !== 'undefined' && !libraryLoaded) {
-                libraryLoaded = true;
-                updateStatus('✅ Carregado', 'success');
-                loginBtn.disabled = false;
-                addLog('✅ tmi.js detectado (verificação periódica).', 'success');
-                clearInterval(interval);
-            }
-            attempts++;
-            if (attempts > 20) clearInterval(interval);
-        }, 1000);
-    })();
-</script>
-
-<script>
-    // ============================================================
+    // ================================================================
     // CONFIGURAÇÕES
-    // ============================================================
-    const CLIENT_ID = 'seu_client_id_aqui'; // <-- SUBSTITUA PELO SEU CLIENT ID
-    const REDIRECT_URI = window.location.origin + window.location.pathname;
-    const SCOPES = 'chat:read chat:edit';
+    // ================================================================
+    const TWITCH_IRC = 'wss://irc-ws.chat.twitch.tv:443';
 
-    // ============================================================
+    // ================================================================
     // ESTADO
-    // ============================================================
+    // ================================================================
     let accounts = {};
     let accountCounter = 0;
     let targetChannel = document.getElementById('targetChannel').value.trim() || 'lpxstreaming';
+    let wsConnections = {}; // { accountId: WebSocket }
 
-    // ============================================================
-    // FUNÇÕES DE LOG (sobrescreve a anterior)
-    // ============================================================
+    // ================================================================
+    // LOGS
+    // ================================================================
     function addLog(message, type = 'info', accountId = null) {
         const logArea = document.getElementById('logArea');
         const entry = document.createElement('div');
@@ -471,106 +331,36 @@
             logArea.removeChild(logArea.firstChild);
         }
     }
-    // Substitui o placeholder
-    window.addLog = addLog;
 
-    // ============================================================
-    // OAuth LOGIN
-    // ============================================================
-    document.getElementById('loginBtn').addEventListener('click', function() {
-        if (!CLIENT_ID || CLIENT_ID === 'seu_client_id_aqui') {
-            addLog('❌ Configure o CLIENT_ID no código (linha 300).', 'error');
-            return;
-        }
-        const authUrl =
-            `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${SCOPES}`;
-        window.open(authUrl, '_blank', 'width=600,height=700');
-    });
-
-    // ============================================================
-    // PROCESSAR REDIRECT COM TOKEN
-    // ============================================================
-    function handleOAuthRedirect() {
-        const hash = window.location.hash;
-        if (hash) {
-            const params = new URLSearchParams(hash.substring(1));
-            const accessToken = params.get('access_token');
-            if (accessToken) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-                fetchUserInfo(accessToken);
-            } else {
-                addLog('❌ Token não encontrado na URL.', 'error');
-            }
-        }
-    }
-
-    async function fetchUserInfo(token) {
-        try {
-            const response = await fetch('https://api.twitch.tv/helix/users', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Client-Id': CLIENT_ID
-                }
-            });
-            const data = await response.json();
-            if (data.data && data.data.length > 0) {
-                const user = data.data[0];
-                addAccount(token, user);
-            } else {
-                addLog('❌ Não foi possível obter dados do usuário.', 'error');
-            }
-        } catch (e) {
-            addLog(`❌ Erro ao buscar usuário: ${e.message}`, 'error');
-        }
-    }
-
-    // ============================================================
+    // ================================================================
     // ADICIONAR CONTA
-    // ============================================================
-    function addAccount(token, user) {
+    // ================================================================
+    function addAccount(token, username) {
+        token = token.trim();
         if (!token.startsWith('oauth:')) {
             token = 'oauth:' + token;
         }
-        const id = ++accountCounter;
-        const username = user.display_name || user.login || user.username || 'Usuário';
-        accounts[id] = {
-            token: token,
-            username: username,
-            avatar: user.profile_image_url || '',
-            status: 'offline',
-            client: null,
-            interval: null,
-            log: []
-        };
-        renderAccounts();
-        addLog(`✅ Conta ${username} adicionada!`, 'success', id);
-    }
-
-    function addManualAccount(token, username) {
         if (!token || !username) {
-            addLog('⚠️ Preencha o token e o nome de usuário.', 'error');
+            addLog('⚠️ Preencha token e nome de usuário.', 'error');
             return;
-        }
-        if (!token.startsWith('oauth:')) {
-            token = 'oauth:' + token;
         }
         const id = ++accountCounter;
         accounts[id] = {
             token: token,
             username: username.trim(),
-            avatar: '',
             status: 'offline',
-            client: null,
+            ws: null,
             interval: null,
-            log: []
+            lastMessageTime: 0,
+            userCooldowns: {}
         };
         renderAccounts();
-        addLog(`✅ Conta ${username} adicionada manualmente!`, 'success', id);
+        addLog(`✅ Conta ${username} adicionada!`, 'success', id);
     }
 
-    // ============================================================
+    // ================================================================
     // REMOVER CONTA
-    // ============================================================
+    // ================================================================
     function removeAccount(id) {
         if (accounts[id].status === 'online') {
             deactivateBot(id);
@@ -580,9 +370,9 @@
         addLog(`🗑️ Conta removida.`, 'info');
     }
 
-    // ============================================================
-    // RENDERIZAR LISTA DE CONTAS
-    // ============================================================
+    // ================================================================
+    // RENDERIZAR LISTA
+    // ================================================================
     function renderAccounts() {
         const container = document.getElementById('accountsContainer');
         const ids = Object.keys(accounts);
@@ -617,9 +407,9 @@
         container.innerHTML = html;
     }
 
-    // ============================================================
-    // BOT - ATIVAR / DESATIVAR
-    // ============================================================
+    // ================================================================
+    // BOT (WebSocket)
+    // ================================================================
     function toggleBot(id) {
         const acc = accounts[id];
         if (!acc) return;
@@ -633,10 +423,6 @@
     function activateBot(id) {
         const acc = accounts[id];
         if (!acc) return;
-        if (typeof tmi === 'undefined') {
-            addLog('❌ tmi.js não carregado. Recarregue a página ou clique em "Recarregar Biblioteca".', 'error', id);
-            return;
-        }
 
         const channel = targetChannel;
         if (!channel) {
@@ -644,54 +430,36 @@
             return;
         }
 
+        if (acc.status === 'online') return;
+
         try {
-            const client = new tmi.Client({
-                identity: {
-                    username: acc.username,
-                    password: acc.token
-                },
-                channels: [channel]
-            });
-
-            acc.client = client;
-            acc.status = 'online';
+            const ws = new WebSocket(TWITCH_IRC);
+            acc.ws = ws;
+            acc.status = 'connecting';
             renderAccounts();
-            addLog(`🔄 Conectando ao canal #${channel}...`, 'info', id);
+            addLog(`🔄 Conectando ao chat da Twitch...`, 'info', id);
 
-            client.connect().then(() => {
+            ws.onopen = () => {
+                // Envia autenticação
+                ws.send(`PASS ${acc.token}`);
+                ws.send(`NICK ${acc.username}`);
+                ws.send(`JOIN #${channel}`);
                 addLog(`✅ Conectado ao canal #${channel}`, 'success', id);
+                acc.status = 'online';
                 renderAccounts();
 
-                // Escutar mensagens
-                client.on('message', (chan, userstate, message, self) => {
-                    if (self) return;
-                    if (message.startsWith('!')) return;
-                    const username = userstate['display-name'] || userstate.username;
-                    addLog(`💬 ${username}: ${message}`, 'chat', id);
-
-                    // Responder com frase aleatória (30% de chance)
-                    if (Math.random() < 0.3) {
-                        const respostas = [
-                            "hahaha verdade! 😂", "nossa, concordo!", "isso é épico! 🔥",
-                            "alguém mais tá amando essa live?", "que jogada!", "melhor momento!",
-                            "hahaha que isso", "pois é, tô curtindo", "alguém mais viu isso? 👀",
-                            "sim, concordo!", "POGGERS!", "KEKW", "LUL", "monkaS",
-                            "isso foi insano!", "caraca, que momento!"
-                        ];
-                        const resposta = respostas[Math.floor(Math.random() * respostas.length)];
-                        client.say(chan, resposta).then(() => {
-                            addLog(`🤖 ${acc.username}: ${resposta}`, 'success', id);
-                        }).catch(err => {
-                            addLog(`❌ Erro ao enviar: ${err.message}`, 'error', id);
-                        });
+                // Iniciar ping/pong
+                const pingInterval = setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send('PING :tmi.twitch.tv');
                     }
-                });
+                }, 30000);
+                acc._pingInterval = pingInterval;
 
-                // Comentários espontâneos a cada 2 minutos
-                const interval = setInterval(() => {
+                // Iniciar comentários espontâneos
+                const spontaneousInterval = setInterval(() => {
                     if (acc.status !== 'online') {
-                        clearInterval(interval);
-                        acc.interval = null;
+                        clearInterval(spontaneousInterval);
                         return;
                     }
                     const frases = [
@@ -702,27 +470,77 @@
                         "hahaha esse momento foi épico",
                         "alguém sabe dizer que horas termina?",
                         "que gameplay insana, parabéns!",
-                        "estou amando a interação no chat",
-                        "alguém mais curtiu essa parte?",
-                        "não vejo a hora do próximo jogo"
+                        "estou amando a interação no chat"
                     ];
                     const frase = frases[Math.floor(Math.random() * frases.length)];
-                    client.say(`#${channel}`, frase).then(() => {
-                        addLog(`🗣️ ${acc.username}: ${frase}`, 'info', id);
-                    }).catch(err => {
-                        addLog(`❌ Erro ao enviar espontânea: ${err.message}`, 'error', id);
-                    });
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(`PRIVMSG #${channel} :${frase}`);
+                        addLog(`🗣️ ${frase}`, 'info', id);
+                    }
                 }, 120000);
+                acc._spontaneousInterval = spontaneousInterval;
+            };
 
-                acc.interval = interval;
-                renderAccounts();
+            ws.onmessage = (event) => {
+                const msg = event.data;
+                // Responde a PING
+                if (msg.startsWith('PING')) {
+                    ws.send('PONG :tmi.twitch.tv');
+                    return;
+                }
 
-            }).catch(err => {
-                addLog(`❌ Erro na conexão: ${err.message}`, 'error', id);
-                acc.status = 'offline';
-                acc.client = null;
-                renderAccounts();
-            });
+                // Ignora mensagens do próprio bot
+                if (msg.includes(`PRIVMSG #${channel} :`) && msg.includes(`:${acc.username}!`)) {
+                    return;
+                }
+
+                // Parse de mensagem do chat
+                const privmsgMatch = msg.match(/^:(\w+)!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #(\w+) :(.+)$/);
+                if (privmsgMatch) {
+                    const username = privmsgMatch[1];
+                    const channelName = privmsgMatch[2];
+                    const message = privmsgMatch[3];
+                    if (channelName.toLowerCase() === channel.toLowerCase()) {
+                        addLog(`💬 ${username}: ${message}`, 'chat', id);
+
+                        // Responder com chance de 30%
+                        if (Math.random() < 0.3 && !message.startsWith('!')) {
+                            const now = Date.now();
+                            // Cooldown por usuário (60s)
+                            if (acc.userCooldowns[username] && (now - acc.userCooldowns[username]) < 60000) return;
+                            // Cooldown global (5s)
+                            if ((now - acc.lastMessageTime) < 5000) return;
+
+                            const respostas = [
+                                "hahaha verdade! 😂", "nossa, concordo!", "isso é épico! 🔥",
+                                "alguém mais tá amando essa live?", "que jogada!", "melhor momento!",
+                                "hahaha que isso", "pois é, tô curtindo", "alguém mais viu isso? 👀",
+                                "sim, concordo!", "POGGERS!", "KEKW", "LUL", "monkaS",
+                                "isso foi insano!", "caraca, que momento!"
+                            ];
+                            const resposta = respostas[Math.floor(Math.random() * respostas.length)];
+                            ws.send(`PRIVMSG #${channel} :${resposta}`);
+                            acc.lastMessageTime = now;
+                            acc.userCooldowns[username] = now;
+                            addLog(`🤖 ${resposta}`, 'success', id);
+                        }
+                    }
+                }
+            };
+
+            ws.onclose = (e) => {
+                addLog(`⚠️ Conexão fechada.`, 'error', id);
+                if (acc.status === 'online') {
+                    deactivateBot(id);
+                }
+            };
+
+            ws.onerror = (err) => {
+                addLog(`❌ Erro no WebSocket: ${err.message || 'erro desconhecido'}`, 'error', id);
+                if (acc.status === 'online') {
+                    deactivateBot(id);
+                }
+            };
 
         } catch (e) {
             addLog(`❌ Erro ao ativar bot: ${e.message}`, 'error', id);
@@ -732,24 +550,42 @@
     function deactivateBot(id) {
         const acc = accounts[id];
         if (!acc) return;
-        if (acc.client) {
+        if (acc.ws) {
             try {
-                acc.client.disconnect();
+                acc.ws.close();
             } catch (e) {}
-            acc.client = null;
+            acc.ws = null;
         }
-        if (acc.interval) {
-            clearInterval(acc.interval);
-            acc.interval = null;
+        if (acc._pingInterval) {
+            clearInterval(acc._pingInterval);
+            acc._pingInterval = null;
+        }
+        if (acc._spontaneousInterval) {
+            clearInterval(acc._spontaneousInterval);
+            acc._spontaneousInterval = null;
         }
         acc.status = 'offline';
+        acc.lastMessageTime = 0;
+        acc.userCooldowns = {};
         renderAccounts();
         addLog(`⏹️ Bot desativado.`, 'info', id);
     }
 
-    // ============================================================
-    // EVENTOS DO DOM
-    // ============================================================
+    // ================================================================
+    // EVENTOS DOM
+    // ================================================================
+
+    document.getElementById('addTokenBtn').addEventListener('click', function() {
+        const token = document.getElementById('manualTokenInput').value.trim();
+        const username = document.getElementById('manualUsernameInput').value.trim();
+        if (!token || !username) {
+            addLog('⚠️ Preencha token e nome de usuário.', 'error');
+            return;
+        }
+        addAccount(token, username);
+        document.getElementById('manualTokenInput').value = '';
+        document.getElementById('manualUsernameInput').value = '';
+    });
 
     document.getElementById('setChannelBtn').addEventListener('click', function() {
         const input = document.getElementById('targetChannel');
@@ -763,38 +599,15 @@
         }
     });
 
-    document.getElementById('addTokenBtn').addEventListener('click', function() {
-        const tokenInput = document.getElementById('manualTokenInput');
-        const userInput = document.getElementById('manualUsernameInput');
-        const token = tokenInput.value.trim();
-        const username = userInput.value.trim();
-
-        if (!token) {
-            addLog('⚠️ Cole o token OAuth.', 'error');
-            return;
-        }
-        if (!username) {
-            addLog('⚠️ Digite o nome de usuário (exatamente como na Twitch).', 'error');
-            return;
-        }
-
-        addManualAccount(token, username);
-        tokenInput.value = '';
-        userInput.value = '';
-    });
-
     document.getElementById('clearLogsBtn').addEventListener('click', function(e) {
         e.preventDefault();
-        const logArea = document.getElementById('logArea');
-        logArea.innerHTML = '';
+        document.getElementById('logArea').innerHTML = '';
         addLog('🧹 Logs limpos.', 'info');
     });
 
-    // ============================================================
-    // INICIALIZAÇÃO
-    // ============================================================
-    handleOAuthRedirect();
-
+    // ================================================================
+    // CARREGAR CANAL SALVO
+    // ================================================================
     const savedChannel = localStorage.getItem('twitchBotChannel');
     if (savedChannel) {
         document.getElementById('targetChannel').value = savedChannel;
@@ -806,15 +619,17 @@
         localStorage.setItem('twitchBotChannel', this.value.trim());
     });
 
-    // ============================================================
+    // ================================================================
     // EXPOR FUNÇÕES GLOBAIS
-    // ============================================================
+    // ================================================================
     window.toggleBot = toggleBot;
     window.removeAccount = removeAccount;
+    window.addAccount = addAccount;
     window.addLog = addLog;
-    window.addManualAccount = addManualAccount;
 
-    console.log('🤖 Sistema de bot multi-conta carregado.');
+    console.log('🤖 Twitch Bot Multi-Conta (WebSocket) carregado.');
+    console.log('📌 Use tokens gerados em twitchtokengenerator.com');
 </script>
+
 </body>
 </html>
