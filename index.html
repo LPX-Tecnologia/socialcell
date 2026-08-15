@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SocialCell - Gerenciador Multi-Conta</title>
+    <title>SocialCell - Gerenciador de Contas</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <style>
         * {
@@ -22,100 +20,58 @@
             background: #0a0a0a;
             color: #fff;
             min-height: 100vh;
+            padding: 20px;
         }
 
         /* ===== HEADER ===== */
         .header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: rgba(20, 20, 20, 0.95);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
-            background-size: 200% 100%;
-            animation: neonLine 3s ease-in-out infinite;
-        }
-
-        @keyframes neonLine {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-text {
+        .logo {
             font-family: 'Orbitron', monospace;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #00ffff, #ff00ff, #00ffff);
-            background-size: 300% 300%;
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: gradientText 3s ease-in-out infinite;
-        }
-
-        @keyframes gradientText {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         .header-controls {
             display: flex;
             gap: 10px;
-            align-items: center;
             flex-wrap: wrap;
-        }
-
-        .header-stats {
-            display: flex;
-            gap: 12px;
-            font-size: 0.8rem;
-        }
-
-        .stat-item {
-            display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            background: rgba(0, 255, 255, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 255, 255, 0.1);
         }
 
-        .stat-item span {
+        .stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        .stats span {
             color: #00ffff;
             font-weight: 700;
         }
 
-        .btn-neon {
-            padding: 8px 18px;
-            background: transparent;
-            color: #00ffff;
+        .btn {
+            padding: 10px 20px;
             border: 2px solid #00ffff;
             border-radius: 8px;
+            background: transparent;
+            color: #00ffff;
             font-family: 'Orbitron', monospace;
             font-size: 0.7rem;
             font-weight: 700;
@@ -125,43 +81,40 @@
             letter-spacing: 1px;
         }
 
-        .btn-neon:hover {
+        .btn:hover {
             background: #00ffff;
             color: #0a0a0a;
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
             transform: scale(1.05);
         }
 
-        .btn-neon-purple {
+        .btn-purple {
             border-color: #ff00ff;
             color: #ff00ff;
         }
 
-        .btn-neon-purple:hover {
+        .btn-purple:hover {
             background: #ff00ff;
             color: #0a0a0a;
-            box-shadow: 0 0 40px rgba(255, 0, 255, 0.5);
         }
 
-        .btn-neon-green {
+        .btn-green {
             border-color: #00ff88;
             color: #00ff88;
         }
 
-        .btn-neon-green:hover {
+        .btn-green:hover {
             background: #00ff88;
             color: #0a0a0a;
-            box-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
         }
 
-        /* ===== CONTAINER ===== */
+        /* ===== CONTAINER DE CONTAS ===== */
         .accounts-container {
-            padding: 20px;
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: flex-start;
-            min-height: calc(100vh - 80px);
+            min-height: 400px;
         }
 
         /* ===== CARD DE CONTA ===== */
@@ -169,31 +122,28 @@
             flex: 0 0 calc(25% - 20px);
             min-width: 280px;
             background: rgba(20, 20, 20, 0.95);
-            border-radius: 20px;
+            border-radius: 15px;
             padding: 20px;
             border: 2px solid rgba(0, 255, 255, 0.15);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.05);
-            transition: all 0.4s ease;
-            animation: fadeInUp 0.5s ease;
+            transition: all 0.3s ease;
             position: relative;
-            display: flex;
-            flex-direction: column;
+            animation: fadeIn 0.5s ease;
         }
 
         .account-card:hover {
             transform: translateY(-5px);
-            border-color: rgba(0, 255, 255, 0.4);
+            border-color: rgba(0, 255, 255, 0.5);
             box-shadow: 0 10px 40px rgba(0, 255, 255, 0.15);
         }
 
-        @keyframes fadeInUp {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(20px) scale(0.95);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
 
@@ -201,63 +151,46 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .account-name {
+        .card-name {
             font-family: 'Orbitron', monospace;
             font-size: 0.9rem;
             color: #00ffff;
             font-weight: 700;
         }
 
-        .account-id {
+        .card-id {
             font-size: 0.6rem;
             color: #666;
-            font-family: 'Orbitron', monospace;
         }
 
-        .card-actions button {
-            background: transparent;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        .card-actions button:hover {
-            color: #ff4444;
-            background: rgba(255, 0, 0, 0.1);
-        }
-
-        .url-display {
+        .card-url {
             font-size: 0.75rem;
             color: #888;
             background: rgba(0, 0, 0, 0.3);
             padding: 8px 12px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .url-display i {
+        .card-url i {
             color: #00ffff;
             margin-right: 8px;
         }
 
-        .account-status {
+        .card-status {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #666;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .dot {
@@ -269,49 +202,47 @@
 
         .dot.online {
             background: #00ff88;
-            animation: dotPulse 1.5s ease-in-out infinite;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
         .dot.offline {
             background: #ff4444;
         }
 
-        @keyframes dotPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.3; transform: scale(0.8); }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
-        .account-buttons {
+        .card-buttons {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
-            margin-top: auto;
         }
 
-        .account-buttons button {
+        .card-buttons button {
             flex: 1;
-            min-width: 70px;
-            padding: 10px 12px;
+            padding: 10px;
             border: 2px solid #00ffff;
-            border-radius: 10px;
+            border-radius: 8px;
             background: transparent;
             color: #00ffff;
             font-family: 'Rajdhani', sans-serif;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 5px;
+            min-width: 60px;
         }
 
-        .account-buttons button:hover {
+        .card-buttons button:hover {
             background: #00ffff;
             color: #0a0a0a;
             transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
         }
 
         .btn-open {
@@ -334,8 +265,21 @@
             color: #0a0a0a;
         }
 
+        .btn-remove {
+            border-color: #ff4444;
+            color: #ff4444;
+            flex: 0.5 !important;
+            min-width: 40px !important;
+        }
+
+        .btn-remove:hover {
+            background: #ff4444;
+            color: #0a0a0a;
+        }
+
         /* ===== MODAL ===== */
-        .modal-overlay {
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -344,29 +288,25 @@
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
             z-index: 1000;
-            display: none;
             justify-content: center;
             align-items: center;
         }
 
-        .modal-overlay.active {
+        .modal.active {
             display: flex;
         }
 
-        .modal-content {
+        .modal-box {
             background: #1a1a1a;
             padding: 30px;
-            border-radius: 25px;
+            border-radius: 20px;
             max-width: 500px;
             width: 90%;
             border: 2px solid rgba(0, 255, 255, 0.2);
-            box-shadow: 0 0 60px rgba(0, 255, 255, 0.1);
-            animation: modalSlide 0.4s ease;
-            max-height: 90vh;
-            overflow-y: auto;
+            animation: slideIn 0.4s ease;
         }
 
-        @keyframes modalSlide {
+        @keyframes slideIn {
             from {
                 transform: translateY(-50px) scale(0.9);
                 opacity: 0;
@@ -377,120 +317,111 @@
             }
         }
 
-        .modal-content h2 {
+        .modal-box h2 {
             font-family: 'Orbitron', monospace;
             color: #00ffff;
-            margin-bottom: 20px;
             text-align: center;
+            margin-bottom: 20px;
         }
 
-        .modal-content .form-group {
-            margin-bottom: 15px;
-        }
-
-        .modal-content label {
-            display: block;
-            color: #888;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .modal-content input,
-        .modal-content select {
+        .modal-box input,
+        .modal-box select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 12px;
+            margin-bottom: 15px;
             background: #0a0a0a;
             border: 2px solid rgba(0, 255, 255, 0.2);
             border-radius: 8px;
             color: #fff;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+            font-size: 1rem;
         }
 
-        .modal-content input:focus,
-        .modal-content select:focus {
+        .modal-box input:focus,
+        .modal-box select:focus {
             outline: none;
             border-color: #00ffff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
         }
 
-        .modal-content .btn-group-modal {
+        .modal-buttons {
             display: flex;
             gap: 12px;
-            margin-top: 20px;
         }
 
-        .modal-content .btn-group-modal button {
+        .modal-buttons button {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #00ffff;
             border-radius: 8px;
             background: transparent;
             color: #00ffff;
             font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
+            font-size: 0.8rem;
         }
 
-        .modal-content .btn-group-modal button:hover {
+        .modal-buttons button:hover {
             background: #00ffff;
             color: #0a0a0a;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
         }
 
-        .btn-close-modal {
+        .modal-close {
             border-color: #ff4444 !important;
             color: #ff4444 !important;
         }
 
-        .btn-close-modal:hover {
+        .modal-close:hover {
             background: #ff4444 !important;
             color: #fff !important;
         }
 
-        /* ===== NOTIFICAÇÕES ===== */
+        /* ===== NOTIFICAÇÃO ===== */
         .notification {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            padding: 12px 20px;
+            padding: 15px 25px;
             background: rgba(10, 10, 10, 0.95);
             border: 2px solid #00ffff;
             border-radius: 12px;
             color: #fff;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.9rem;
             font-weight: 600;
             z-index: 9999;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            animation: slideInRight 0.4s ease, fadeOut 0.4s ease 3s forwards;
+            animation: slideRight 0.4s ease, fadeOut 0.4s ease 3s forwards;
             max-width: 400px;
         }
 
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        @keyframes slideRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         @keyframes fadeOut {
-            from {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateX(50px);
-            }
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(50px); }
+        }
+
+        /* ===== SEM CONTAS ===== */
+        .empty-state {
+            width: 100%;
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            color: #444;
+            margin-bottom: 10px;
         }
 
         /* ===== RESPONSIVIDADE ===== */
@@ -512,29 +443,21 @@
             }
 
             .header {
-                padding: 8px 10px;
+                flex-direction: column;
+                align-items: stretch;
             }
 
-            .logo-text {
-                font-size: 1.1rem;
+            .header-controls {
+                justify-content: center;
             }
 
-            .header-stats {
-                font-size: 0.65rem;
-                gap: 5px;
+            .stats {
+                justify-content: center;
             }
 
-            .stat-item {
-                padding: 2px 6px;
-            }
-
-            .btn-neon {
-                padding: 5px 10px;
-                font-size: 0.6rem;
-            }
-
-            .accounts-container {
-                padding: 10px;
+            .logo {
+                text-align: center;
+                font-size: 1.4rem;
             }
         }
 
@@ -544,7 +467,7 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: #0a0a0a;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -556,79 +479,68 @@
 <body>
 
     <!-- ===== HEADER ===== -->
-    <header class="header">
-        <div class="logo-container">
-            <div style="font-size: 2rem;">📱</div>
-            <div>
-                <div class="logo-text">SocialCell</div>
-                <div style="font-size: 0.55rem; color: #666; font-family: 'Orbitron', monospace; letter-spacing: 2px;">
-                    <i class="fas fa-window-restore" style="color: #00ffff;"></i> MULTI-CONTA
-                </div>
-            </div>
+    <div class="header">
+        <div class="logo">
+            📱 SocialCell
+            <span style="font-size: 0.6rem; display: block; color: #666; -webkit-text-fill-color: #666;">
+                <i class="fas fa-users"></i> Gerenciador Multi-Conta
+            </span>
         </div>
         <div class="header-controls">
-            <div class="header-stats">
-                <div class="stat-item">
+            <div class="stats">
+                <div>
                     <i class="fas fa-users" style="color: #00ffff;"></i>
-                    <span id="totalAccounts">0</span>
+                    Total: <span id="totalAccounts">0</span>
                 </div>
-                <div class="stat-item">
+                <div>
                     <i class="fas fa-check-circle" style="color: #00ff88;"></i>
-                    <span id="totalOnline">0</span>
+                    Online: <span id="totalOnline">0</span>
                 </div>
             </div>
-            <button class="btn-neon" onclick="abrirModal()">
+            <button class="btn" onclick="abrirModal()">
                 <i class="fas fa-plus-circle"></i> Nova
             </button>
-            <button class="btn-neon btn-neon-purple" onclick="criarMultiplas(10)">
+            <button class="btn btn-purple" onclick="criarMultiplas(10)">
                 <i class="fas fa-layer-group"></i> +10
             </button>
-            <button class="btn-neon btn-neon-green" onclick="criarMultiplas(50)">
+            <button class="btn btn-green" onclick="criarMultiplas(50)">
                 <i class="fas fa-rocket"></i> +50
             </button>
         </div>
-    </header>
+    </div>
 
-    <!-- ===== CONTAINER ===== -->
+    <!-- ===== CONTAINER DE CONTAS ===== -->
     <div class="accounts-container" id="accountsContainer">
-        <!-- Contas serão inseridas aqui -->
+        <!-- As contas aparecerão aqui -->
     </div>
 
     <!-- ===== MODAL ===== -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content">
+    <div class="modal" id="modal">
+        <div class="modal-box">
             <h2><i class="fas fa-plus-circle" style="color: #ff00ff;"></i> Nova Conta</h2>
-            <form id="createAccountForm">
-                <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Nome da Conta</label>
-                    <input type="text" id="accountName" placeholder="Ex: Instagram Pessoal" required>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-globe"></i> Rede Social</label>
-                    <select id="socialNetwork">
-                        <option value="https://www.instagram.com">📸 Instagram</option>
-                        <option value="https://www.facebook.com">👍 Facebook</option>
-                        <option value="https://twitter.com">🐦 Twitter / X</option>
-                        <option value="https://www.youtube.com">▶️ YouTube</option>
-                        <option value="https://www.tiktok.com">🎵 TikTok</option>
-                        <option value="https://www.linkedin.com">💼 LinkedIn</option>
-                        <option value="https://web.whatsapp.com">💬 WhatsApp Web</option>
-                        <option value="https://web.telegram.org">✈️ Telegram Web</option>
-                        <option value="https://www.reddit.com">🤖 Reddit</option>
-                        <option value="https://www.pinterest.com">📌 Pinterest</option>
-                        <option value="https://www.twitch.tv">🎮 Twitch</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-link"></i> URL Personalizada</label>
-                    <input type="url" id="customUrl" placeholder="https://exemplo.com">
-                    <small style="color: #666; font-size: 0.7rem;">Deixe em branco para usar a rede selecionada</small>
-                </div>
-                <div class="btn-group-modal">
+            <form id="formConta">
+                <input type="text" id="nomeConta" placeholder="Nome da conta (ex: Instagram Pessoal)" required>
+                
+                <select id="redeSocial">
+                    <option value="https://www.instagram.com">📸 Instagram</option>
+                    <option value="https://www.facebook.com">👍 Facebook</option>
+                    <option value="https://twitter.com">🐦 Twitter/X</option>
+                    <option value="https://www.youtube.com">▶️ YouTube</option>
+                    <option value="https://www.tiktok.com">🎵 TikTok</option>
+                    <option value="https://www.linkedin.com">💼 LinkedIn</option>
+                    <option value="https://web.whatsapp.com">💬 WhatsApp Web</option>
+                    <option value="https://web.telegram.org">✈️ Telegram</option>
+                    <option value="https://www.reddit.com">🤖 Reddit</option>
+                    <option value="https://www.pinterest.com">📌 Pinterest</option>
+                </select>
+                
+                <input type="url" id="urlPersonalizada" placeholder="URL personalizada (opcional)">
+                
+                <div class="modal-buttons">
                     <button type="submit">
                         <i class="fas fa-check"></i> Criar
                     </button>
-                    <button type="button" class="btn-close-modal" onclick="fecharModal()">
+                    <button type="button" class="modal-close" onclick="fecharModal()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -638,135 +550,132 @@
 
     <script>
         // ============================================================
-        // ESTADO
+        // DADOS
         // ============================================================
-        let accounts = [];
-        let accountCounter = 0;
+        let contas = [];
+        let contador = 0;
         let onlineCount = 0;
 
         // ============================================================
-        // FUNÇÕES PRINCIPAIS
+        // FUNÇÕES
         // ============================================================
-        function criarConta(data) {
-            const id = ++accountCounter;
 
-            const account = {
+        // Criar uma nova conta
+        function criarConta(dados) {
+            const id = ++contador;
+
+            const conta = {
                 id: id,
-                name: data.name || `Conta ${id}`,
-                url: data.url || 'https://www.google.com',
-                createdAt: new Date().toLocaleString('pt-BR'),
+                nome: dados.nome || `Conta ${id}`,
+                url: dados.url || 'https://www.google.com',
                 status: 'offline',
-                window: null
+                janela: null,
+                criadoEm: new Date().toLocaleString('pt-BR')
             };
 
-            accounts.push(account);
-            renderizarConta(account);
+            contas.push(conta);
+            renderizarConta(conta);
             atualizarStats();
 
-            gsap.from(`.account-card[data-id="${id}"]`, {
-                scale: 0.8,
-                opacity: 0,
-                duration: 0.5,
-                ease: 'back.out(1.7)'
-            });
+            notificar(`✅ Conta criada: ${conta.nome}`, '#00ffff');
 
-            mostrarNotificacao(`✅ Conta criada: ${account.name}`, '#00ffff');
-
-            return account;
+            return conta;
         }
 
-        function renderizarConta(data) {
+        // Renderizar uma conta na tela
+        function renderizarConta(conta) {
             const container = document.getElementById('accountsContainer');
+
+            // Remover mensagem de vazio se existir
+            const empty = container.querySelector('.empty-state');
+            if (empty) empty.remove();
 
             const card = document.createElement('div');
             card.className = 'account-card';
-            card.dataset.id = data.id;
+            card.dataset.id = conta.id;
 
-            const urlDisplay = data.url.length > 50 ? data.url.substring(0, 50) + '...' : data.url;
+            const urlDisplay = conta.url.length > 50 ? conta.url.substring(0, 50) + '...' : conta.url;
 
             card.innerHTML = `
                 <div class="card-header">
-                    <span class="account-name">
+                    <span class="card-name">
                         <i class="fas fa-user-circle" style="color: #ff00ff;"></i>
-                        ${data.name}
+                        ${conta.nome}
                     </span>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="account-id">#${data.id}</span>
-                        <div class="card-actions">
-                            <button onclick="removerConta(${data.id})" title="Remover">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <span class="card-id">#${conta.id}</span>
                 </div>
 
-                <div class="url-display">
+                <div class="card-url">
                     <i class="fas fa-link"></i>
                     ${urlDisplay}
                 </div>
 
-                <div class="account-status">
-                    <span class="dot ${data.status === 'online' ? 'online' : 'offline'}" id="dot_${data.id}"></span>
-                    <span id="statusText_${data.id}">${data.status === 'online' ? '🟢 Conectado' : '🔴 Desconectado'}</span>
+                <div class="card-status">
+                    <span class="dot ${conta.status === 'online' ? 'online' : 'offline'}" id="dot_${conta.id}"></span>
+                    <span id="statusText_${conta.id}">${conta.status === 'online' ? '🟢 Conectado' : '🔴 Desconectado'}</span>
                     <span style="margin-left: auto; font-size: 0.6rem; color: #444;">
-                        <i class="far fa-clock"></i> ${data.createdAt}
+                        <i class="far fa-clock"></i> ${conta.criadoEm}
                     </span>
                 </div>
 
-                <div class="account-buttons">
-                    <button class="btn-open" onclick="abrirConta(${data.id})">
+                <div class="card-buttons">
+                    <button class="btn-open" onclick="abrirConta(${conta.id})">
                         <i class="fas fa-external-link-alt"></i> Abrir
                     </button>
-                    <button class="btn-popup" onclick="abrirPopup(${data.id})">
+                    <button class="btn-popup" onclick="abrirPopup(${conta.id})">
                         <i class="fas fa-window-restore"></i> Popup
+                    </button>
+                    <button class="btn-remove" onclick="removerConta(${conta.id})" title="Remover">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             `;
 
             container.appendChild(card);
+
+            // Animação de entrada
+            card.style.animation = 'none';
+            setTimeout(() => {
+                card.style.animation = 'fadeIn 0.5s ease';
+            }, 10);
         }
 
-        // ============================================================
-        // ABRIR CONTAS
-        // ============================================================
-
-        // 1. Abrir na mesma janela (navegação normal)
+        // Abrir conta em nova aba
         function abrirConta(id) {
-            const account = accounts.find(a => a.id === id);
-            if (!account) return;
+            const conta = contas.find(c => c.id === id);
+            if (!conta) return;
 
-            // Abre em uma nova aba/janela
-            const win = window.open(account.url, `_blank`);
+            const win = window.open(conta.url, '_blank');
 
             if (win) {
-                account.status = 'online';
-                account.window = win;
+                conta.status = 'online';
+                conta.janela = win;
                 onlineCount++;
                 atualizarStatus(id);
                 atualizarStats();
-                mostrarNotificacao(`🌐 Abrindo: ${account.name}`, '#00ff88');
+                notificar(`🌐 Abrindo: ${conta.nome}`, '#00ff88');
 
                 // Monitorar fechamento
-                const checkWin = setInterval(() => {
+                const check = setInterval(() => {
                     if (win.closed) {
-                        clearInterval(checkWin);
-                        account.status = 'offline';
-                        account.window = null;
+                        clearInterval(check);
+                        conta.status = 'offline';
+                        conta.janela = null;
                         onlineCount--;
                         atualizarStatus(id);
                         atualizarStats();
-                        mostrarNotificacao(`👋 Fechado: ${account.name}`, '#ffaa00');
+                        notificar(`👋 Fechado: ${conta.nome}`, '#ffaa00');
                     }
                 }, 1000);
             } else {
-                mostrarNotificacao('⚠️ Bloqueado! Permita popups ou use o botão "Popup"', '#ff4444');
+                notificar('⚠️ Bloqueado! Permita popups ou use o botão "Popup"', '#ff4444');
             }
         }
 
-        // 2. Abrir em popup (mais compatível)
+        // Abrir conta em popup
         function abrirPopup(id) {
-            const account = accounts.find(a => a.id === id);
-            if (!account) return;
+            const conta = contas.find(c => c.id === id);
+            if (!conta) return;
 
             const width = 420;
             const height = 700;
@@ -776,82 +685,84 @@
             const features =
                 `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=yes,status=no,scrollbars=yes,resizable=yes`;
 
-            const popup = window.open(account.url, `popup_${id}`, features);
+            const popup = window.open(conta.url, `popup_${id}`, features);
 
             if (popup) {
-                account.status = 'online';
-                account.window = popup;
+                conta.status = 'online';
+                conta.janela = popup;
                 onlineCount++;
                 atualizarStatus(id);
                 atualizarStats();
-                mostrarNotificacao(`📱 Popup: ${account.name}`, '#ff00ff');
+                notificar(`📱 Popup: ${conta.nome}`, '#ff00ff');
 
-                const checkPopup = setInterval(() => {
+                const check = setInterval(() => {
                     if (popup.closed) {
-                        clearInterval(checkPopup);
-                        account.status = 'offline';
-                        account.window = null;
+                        clearInterval(check);
+                        conta.status = 'offline';
+                        conta.janela = null;
                         onlineCount--;
                         atualizarStatus(id);
                         atualizarStats();
-                        mostrarNotificacao(`👋 Popup fechado: ${account.name}`, '#ffaa00');
+                        notificar(`👋 Popup fechado: ${conta.nome}`, '#ffaa00');
                     }
                 }, 1000);
 
                 popup.focus();
             } else {
-                mostrarNotificacao('⚠️ Popup bloqueado! Clique em "Abrir" para nova aba.', '#ff4444');
+                notificar('⚠️ Popup bloqueado! Clique em "Abrir" para nova aba.', '#ff4444');
             }
         }
 
-        // ============================================================
-        // GERENCIAMENTO
-        // ============================================================
+        // Atualizar status visual
         function atualizarStatus(id) {
-            const account = accounts.find(a => a.id === id);
-            if (!account) return;
+            const conta = contas.find(c => c.id === id);
+            if (!conta) return;
 
             const dot = document.getElementById(`dot_${id}`);
             const text = document.getElementById(`statusText_${id}`);
 
             if (dot && text) {
-                dot.className = `dot ${account.status === 'online' ? 'online' : 'offline'}`;
-                text.textContent = account.status === 'online' ? '🟢 Conectado' : '🔴 Desconectado';
+                dot.className = `dot ${conta.status === 'online' ? 'online' : 'offline'}`;
+                text.textContent = conta.status === 'online' ? '🟢 Conectado' : '🔴 Desconectado';
             }
         }
 
+        // Remover conta
         function removerConta(id) {
-            const index = accounts.findIndex(a => a.id === id);
+            const index = contas.findIndex(c => c.id === id);
             if (index === -1) return;
 
-            const account = accounts[index];
+            const conta = contas[index];
 
             // Fechar janela se estiver aberta
-            if (account.window && !account.window.closed) {
+            if (conta.janela && !conta.janela.closed) {
                 try {
-                    account.window.close();
+                    conta.janela.close();
                 } catch {}
                 onlineCount--;
             }
 
             const card = document.querySelector(`.account-card[data-id="${id}"]`);
             if (card) {
-                gsap.to(card, {
-                    scale: 0.8,
-                    opacity: 0,
-                    duration: 0.4,
-                    ease: 'power2.in',
-                    onComplete: () => {
-                        card.remove();
-                        accounts.splice(index, 1);
-                        atualizarStats();
+                card.style.transition = 'all 0.3s ease';
+                card.style.transform = 'scale(0.8)';
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    card.remove();
+                    contas.splice(index, 1);
+                    atualizarStats();
+
+                    // Mostrar mensagem de vazio se não houver contas
+                    if (contas.length === 0) {
+                        mostrarVazio();
                     }
-                });
+                }, 300);
             }
 
-            mostrarNotificacao(`🗑️ Removida: ${account.name}`, '#ff4444');
+            notificar(`🗑️ Removida: ${conta.nome}`, '#ff4444');
         }
 
+        // Criar múltiplas contas
         function criarMultiplas(quantidade) {
             const urls = [
                 'https://www.instagram.com',
@@ -877,73 +788,88 @@
                 const num = Math.floor(Math.random() * 10000);
 
                 criarConta({
-                    name: `${nome} ${num}`,
+                    nome: `${nome} ${num}`,
                     url: url
                 });
             }
 
-            mostrarNotificacao(`📱 ${quantidade} contas criadas!`, '#00ffff');
+            notificar(`📱 ${quantidade} contas criadas!`, '#00ffff');
 
+            // Scroll para o final
             setTimeout(() => {
                 const container = document.getElementById('accountsContainer');
                 container.scrollTo({
                     top: container.scrollHeight,
                     behavior: 'smooth'
                 });
-            }, 300);
+            }, 500);
+        }
+
+        // Mostrar estado vazio
+        function mostrarVazio() {
+            const container = document.getElementById('accountsContainer');
+            const empty = document.createElement('div');
+            empty.className = 'empty-state';
+            empty.innerHTML = `
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Nenhuma conta ainda</h3>
+                <p style="color: #555;">Clique em "Nova" ou "+10" para começar!</p>
+            `;
+            container.appendChild(empty);
+        }
+
+        // ============================================================
+        // STATS
+        // ============================================================
+        function atualizarStats() {
+            document.getElementById('totalAccounts').textContent = contas.length;
+            document.getElementById('totalOnline').textContent = onlineCount;
         }
 
         // ============================================================
         // MODAL
         // ============================================================
         function abrirModal() {
-            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('nomeConta').focus();
         }
 
         function fecharModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
+            document.getElementById('modal').classList.remove('active');
         }
 
-        document.getElementById('createAccountForm').addEventListener('submit', (e) => {
+        document.getElementById('formConta').addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const name = document.getElementById('accountName').value.trim();
-            const network = document.getElementById('socialNetwork').value;
-            const customUrl = document.getElementById('customUrl').value.trim();
+            const nome = document.getElementById('nomeConta').value.trim();
+            const rede = document.getElementById('redeSocial').value;
+            const urlPersonalizada = document.getElementById('urlPersonalizada').value.trim();
 
-            if (!name) {
-                mostrarNotificacao('⚠️ Digite um nome!', '#ffaa00');
+            if (!nome) {
+                notificar('⚠️ Digite um nome para a conta!', '#ffaa00');
                 return;
             }
 
-            const url = customUrl || network;
+            const url = urlPersonalizada || rede;
 
-            criarConta({ name, url });
+            criarConta({ nome, url });
 
             fecharModal();
-            document.getElementById('createAccountForm').reset();
+            document.getElementById('formConta').reset();
         });
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') fecharModal();
         });
 
-        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+        document.getElementById('modal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) fecharModal();
         });
 
         // ============================================================
-        // STATS
-        // ============================================================
-        function atualizarStats() {
-            document.getElementById('totalAccounts').textContent = accounts.length;
-            document.getElementById('totalOnline').textContent = onlineCount;
-        }
-
-        // ============================================================
         // NOTIFICAÇÕES
         // ============================================================
-        function mostrarNotificacao(mensagem, cor = '#00ffff') {
+        function notificar(mensagem, cor = '#00ffff') {
             const notif = document.createElement('div');
             notif.className = 'notification';
             notif.style.borderColor = cor;
@@ -953,38 +879,40 @@
 
             setTimeout(() => {
                 notif.remove();
-            }, 3200);
+            }, 3000);
         }
 
         // ============================================================
         // INICIALIZAÇÃO
         // ============================================================
         function init() {
+            // Criar contas de exemplo
             const exemplos = [
-                { name: '📸 Instagram Pessoal', url: 'https://www.instagram.com' },
-                { name: '👍 Facebook Business', url: 'https://www.facebook.com' },
-                { name: '🐦 Twitter/X News', url: 'https://twitter.com' },
-                { name: '▶️ YouTube Canal', url: 'https://www.youtube.com' },
-                { name: '💼 LinkedIn Profissional', url: 'https://www.linkedin.com' },
-                { name: '🎵 TikTok Criador', url: 'https://www.tiktok.com' }
+                { nome: '📸 Instagram Pessoal', url: 'https://www.instagram.com' },
+                { nome: '👍 Facebook Business', url: 'https://www.facebook.com' },
+                { nome: '🐦 Twitter/X News', url: 'https://twitter.com' },
+                { nome: '▶️ YouTube Canal', url: 'https://www.youtube.com' },
+                { nome: '💼 LinkedIn Profissional', url: 'https://www.linkedin.com' },
+                { nome: '🎵 TikTok Criador', url: 'https://www.tiktok.com' }
             ];
 
             exemplos.forEach(ex => criarConta(ex));
 
             setTimeout(() => {
-                mostrarNotificacao('🚀 Sistema carregado! Clique em "Abrir" para logar', '#00ffff');
+                notificar('🚀 Sistema carregado! Clique em "Abrir" para logar', '#00ffff');
             }, 1000);
 
             setTimeout(() => {
-                mostrarNotificacao('💡 Dica: Use "Popup" para janela flutuante', '#ff00ff');
+                notificar('💡 Dica: Use "Popup" para janela flutuante', '#ff00ff');
             }, 3000);
+
+            console.log('📱 SocialCell carregado!');
+            console.log(`🎯 ${contas.length} contas disponíveis`);
+            console.log('💡 Clique em "Abrir" ou "Popup" em cada conta');
         }
 
+        // Iniciar
         document.addEventListener('DOMContentLoaded', init);
-
-        console.log('📱 SocialCell carregado!');
-        console.log('🎯 Clique em "Abrir" ou "Popup" em cada conta');
-        console.log('💡 Cada conta mantém sessão independente');
     </script>
 </body>
 </html>
