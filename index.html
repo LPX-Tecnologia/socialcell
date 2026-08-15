@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialCell - Gerenciador de Contas</title>
+    
+    <!-- Bibliotecas -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            top: 0;
+            left: 0;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
+            background-size: 200% 100%;
+            animation: neonLine 3s ease-in-out infinite;
+        }
+
+        @keyframes neonLine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            position: relative;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+
+        .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.5));
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ffff, #ff00ff, #00ffff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientText 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 25px;
+            font-size: 0.95rem;
+            align-items: center;
+        }
+
+        .header-stats span {
+            color: #00ffff;
+            font-weight: 700;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        /* ===== BOTÕES ===== */
+        .btn-neon {
+            position: relative;
+            padding: 10px 25px;
+            background: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            overflow: hidden;
+        }
+
+        .btn-neon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-neon:hover::before {
+            left: 100%;
+        }
+
+        .btn-neon:hover {
+            background: #00ffff;
+            color: #0a0a0a;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
+            transform: scale(1.05) translateY(-2px);
+        }
+
+        .btn-neon-purple {
+            border-color: #ff00ff;
+            color: #ff00ff;
+        }
+
+        .btn-neon-purple:hover {
+            background: #ff00ff;
+            color: #0a0a0a;
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.5);
+        }
+
+        .btn-neon-green {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-neon-green:hover {
+            background: #00ff88;
+            color: #0a0a0a;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
+        }
+
+        /* ===== CONTAINER DE CELULARES ===== */
+        .phones-container {
+            margin-top: 90px;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: flex-start;
+            align-items: flex-start;
+            min-height: calc(100vh - 90px);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== CELULAR INDIVIDUAL ===== */
+        .phone-wrapper {
+            animation: fadeInUp 0.6s ease;
+            transition: all 0.3s ease;
+        }
+
+        .phone-wrapper:hover {
+            transform: translateY(-5px) scale(1.02);
+            z-index: 10;
+        }
+
+        .phone {
+            width: 320px;
+            height: 580px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .phone::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, transparent, #ff00ff, transparent);
+            background-size: 400% 400%;
+            border-radius: 42px;
+            z-index: -1;
+            animation: neonPhone 4s ease-in-out infinite;
+            opacity: 0.3;
+            transition: opacity 0.4s ease;
+        }
+
+        .phone:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes neonPhone {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Notch do celular */
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: #0a0a0a;
+            border-radius: 0 0 15px 15px;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phone-notch .camera {
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #2a2a2a, #1a1a1a);
+            border-radius: 50%;
+            border: 1px solid #333;
+        }
+
+        .phone-notch .speaker {
+            width: 40px;
+            height: 4px;
+            background: #2a2a2a;
+            border-radius: 2px;
+        }
+
+        /* Tela do celular */
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            border-radius: 32px;
+            overflow: hidden;
+            padding: 40px 15px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Status bar do celular */
+        .phone-status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            color: #fff;
+            position: absolute;
+            top: 40px;
+            left: 15px;
+            right: 15px;
+            z-index: 2;
+        }
+
+        .phone-status-bar .time {
+            font-weight: 700;
+        }
+
+        .phone-status-bar .icons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* ===== LOGIN SOCIAL ===== */
+        .social-login {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .social-login .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            animation: avatarPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes avatarPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 60px rgba(255, 0, 255, 0.3); }
+        }
+
+        .social-login .account-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: #888;
+            text-align: center;
+        }
+
+        .social-login .account-label strong {
+            color: #00ffff;
+            font-size: 0.9rem;
+        }
+
+        /* Botões de redes sociais */
+        .social-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .social-btn:hover::before {
+            left: 100%;
+        }
+
+        .social-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .social-btn:active {
+            transform: scale(0.95);
+        }
+
+        .social-btn-facebook {
+            background: #1877f2;
+        }
+        .social-btn-facebook:hover {
+            background: #1b86ff;
+            box-shadow: 0 0 40px rgba(24, 119, 242, 0.5);
+        }
+
+        .social-btn-instagram {
+            background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        .social-btn-instagram:hover {
+            box-shadow: 0 0 40px rgba(225, 48, 108, 0.5);
+        }
+
+        .social-btn-twitter {
+            background: #000000;
+            border: 1px solid #1da1f2;
+        }
+        .social-btn-twitter:hover {
+            background: #1da1f2;
+            border-color: #1da1f2;
+            box-shadow: 0 0 40px rgba(29, 161, 242, 0.5);
+        }
+
+        .social-btn-youtube {
+            background: #ff0000;
+        }
+        .social-btn-youtube:hover {
+            background: #ff1a1a;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.5);
+        }
+
+        .social-btn-tiktok {
+            background: #000000;
+            border: 1px solid #ff0050;
+        }
+        .social-btn-tiktok:hover {
+            background: #ff0050;
+            border-color: #ff0050;
+            box-shadow: 0 0 40px rgba(255, 0, 80, 0.5);
+        }
+
+        .social-btn-linkedin {
+            background: #0a66c2;
+        }
+        .social-btn-linkedin:hover {
+            background: #0a7be6;
+            box-shadow: 0 0 40px rgba(10, 102, 194, 0.5);
+        }
+
+        .social-btn-whatsapp {
+            background: #25d366;
+        }
+        .social-btn-whatsapp:hover {
+            background: #2de671;
+            box-shadow: 0 0 40px rgba(37, 211, 102, 0.5);
+        }
+
+        .social-btn-telegram {
+            background: #0088cc;
+        }
+        .social-btn-telegram:hover {
+            background: #0099e6;
+            box-shadow: 0 0 40px rgba(0, 136, 204, 0.5);
+        }
+
+        /* Status de login */
+        .login-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            color: #00ff88;
+            margin-top: 10px;
+        }
+
+        .login-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+
+        .login-status.logged-out {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+        }
+
+        .login-status.logged-out .dot {
+            background: #ff4444;
+        }
+
+        /* ===== MODAL DE CRIAÇÃO ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.1);
+            animation: modalSlide 0.4s ease;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-50px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            font-family: 'Orbitron', monospace;
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-content .form-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-content label {
+            display: block;
+            color: #888;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-content input:focus, .modal-content select:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .modal-content .btn-group-modal {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .modal-content .btn-group-modal button {
+            flex: 1;
+        }
+
+        .btn-close-modal {
+            background: transparent;
+            border: 2px solid #ff4444;
+            color: #ff4444;
+        }
+
+        .btn-close-modal:hover {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #ff00ff, #00ffff);
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                padding: 10px 15px;
+                gap: 10px;
+            }
+
+            .logo-text {
+                font-size: 1.3rem;
+            }
+
+            .header-stats {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                font-size: 0.8rem;
+            }
+
+            .stat-item {
+                padding: 3px 10px;
+            }
+
+            .phones-container {
+                padding: 10px;
+                gap: 20px;
+                justify-content: center;
+                margin-top: 140px;
+            }
+
+            .phone {
+                width: 280px;
+                height: 520px;
+            }
+
+            .social-btn {
+                font-size: 0.85rem;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .phone {
+                width: 260px;
+                height: 480px;
+            }
+
+            .phone-screen {
+                padding: 35px 10px 10px 10px;
+            }
+
+            .social-login .avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+        }
+
+        /* ===== ANIMAÇÕES EXTRA ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Contador de telas */
+        .phone-counter {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.7rem;
+            color: #666;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* Botão de fechar celular */
+        .phone-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 25px;
+            height: 25px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 50%;
+            color: #ff4444;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            z-index: 3;
+            transition: all 0.3s ease;
+        }
+
+        .phone-close:hover {
+            background: rgba(255, 0, 0, 0.4);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Partículas -->
+    <div id="particles-js"></div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00ffff"/>
+                            <stop offset="50%" stop-color="#ff00ff"/>
+                            <stop offset="100%" stop-color="#00ffff"/>
+                        </linearGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="url(#logoGrad)" stroke-width="3">
+                        <animate attributeName="stroke-dasharray" values="0 283; 283 0; 0 283" dur="3s" repeatCount="indefinite"/>
+                    </circle>
+                    <text x="50" y="60" font-family="Orbitron" font-size="35" font-weight="900" fill="url(#logoGrad)" text-anchor="middle" dominant-baseline="middle">S</text>
+                    <circle cx="50" cy="50" r="25" fill="none" stroke="#ff00ff" stroke-width="1" opacity="0.5">
+                        <animate attributeName="r" values="25; 40; 25" dur="2s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="0.5; 0; 0.5" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+            </div>
+            <div>
+                <div class="logo-text">SocialCell</div>
+                <div style="font-size: 0.7rem; color: #666; font-family: 'Orbitron', monospace; letter-spacing: 2px;">
+                    <i class="fas fa-phone" style="color: #00ffff;"></i> GERENCIADOR DE CONTAS
+                </div>
+            </div>
+        </div>
+        <div class="header-stats">
+            <div class="stat-item">
+                <i class="fas fa-mobile-alt" style="color: #00ffff;"></i>
+                <span id="totalPhones">0</span> Telas
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-users" style="color: #ff00ff;"></i>
+                <span id="totalAccounts">0</span> Contas
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-check-circle" style="color: #00ff88;"></i>
+                <span id="totalLogged">0</span> Logadas
+            </div>
+            <button class="btn-neon" onclick="abrirModal()">
+                <i class="fas fa-plus-circle"></i> Nova Tela
+            </button>
+            <button class="btn-neon btn-neon-purple" onclick="criarMultiplasTelas()">
+                <i class="fas fa-layer-group"></i> +50
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== CONTAINER DE CELULARES ===== -->
+    <div class="phones-container" id="phonesContainer">
+        <!-- Os celulares serão inseridos aqui dinamicamente -->
+    </div>
+
+    <!-- ===== MODAL DE CRIAÇÃO ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <h2><i class="fas fa-plus-circle" style="color: #ff00ff;"></i> Nova Conta Social</h2>
+            <form id="createAccountForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Nome da Conta</label>
+                    <input type="text" id="accountName" placeholder="Ex: Conta Instagram 01" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i> Usuário</label>
+                    <input type="text" id="accountUser" placeholder="@usuario" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-share-alt"></i> Rede Social</label>
+                    <select id="socialNetwork">
+                        <option value="facebook">Facebook</option>
+                        <option value="instagram" selected>Instagram</option>
+                        <option value="twitter">Twitter / X</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="telegram">Telegram</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i> Senha (opcional)</label>
+                    <input type="password" id="accountPassword" placeholder="••••••••">
+                </div>
+                <div class="btn-group-modal">
+                    <button type="submit" class="btn-neon" style="flex:2;">
+                        <i class="fas fa-check"></i> Criar Tela
+                    </button>
+                    <button type="button" class="btn-neon btn-close-modal" onclick="fecharModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // PARTÍCULAS
+        // ============================================================
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 60, density: { enable: true, value_area: 800 } },
+                color: { value: ['#00ffff', '#ff00ff'] },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: true },
+                size: { value: 2, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#00ffff',
+                    opacity: 0.15,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1.5,
+                    direction: 'none',
+                    random: true,
+                    out_mode: 'out'
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: { enable: true, mode: 'repulse' },
+                    onclick: { enable: true, mode: 'push' }
+                }
+            }
+        });
+
+        // ============================================================
+        // DADOS
+        // ============================================================
+        let phones = [];
+        let phoneCounter = 0;
+        let accountCounter = 0;
+
+        // Redes sociais com ícones e cores
+        const socialConfigs = {
+            facebook: {
+                icon: 'fab fa-facebook-f',
+                color: '#1877f2',
+                btnClass: 'social-btn-facebook',
+                label: 'Facebook'
+            },
+            instagram: {
+                icon: 'fab fa-instagram',
+                color: '#e4405f',
+                btnClass: 'social-btn-instagram',
+                label: 'Instagram'
+            },
+            twitter: {
+                icon: 'fab fa-twitter',
+                color: '#1da1f2',
+                btnClass: 'social-btn-twitter',
+                label: 'Twitter / X'
+            },
+            youtube: {
+                icon: 'fab fa-youtube',
+                color: '#ff0000',
+                btnClass: 'social-btn-youtube',
+                label: 'YouTube'
+            },
+            tiktok: {
+                icon: 'fab fa-tiktok',
+                color: '#ff0050',
+                btnClass: 'social-btn-tiktok',
+                label: 'TikTok'
+            },
+            linkedin: {
+                icon: 'fab fa-linkedin-in',
+                color: '#0a66c2',
+                btnClass: 'social-btn-linkedin',
+                label: 'LinkedIn'
+            },
+            whatsapp: {
+                icon: 'fab fa-whatsapp',
+                color: '#25d366',
+                btnClass: 'social-btn-whatsapp',
+                label: 'WhatsApp'
+            },
+            telegram: {
+                icon: 'fab fa-telegram-plane',
+                color: '#0088cc',
+                btnClass: 'social-btn-telegram',
+                label: 'Telegram'
+            }
+        };
+
+        // ============================================================
+        // FUNÇÕES PRINCIPAIS
+        // ============================================================
+        function criarTela(accountData) {
+            const id = ++phoneCounter;
+            accountCounter++;
+            
+            const phoneData = {
+                id: id,
+                accountName: accountData.name || `Conta ${id}`,
+                accountUser: accountData.user || `@user${id}`,
+                socialNetwork: accountData.network || 'instagram',
+                password: accountData.password || '',
+                isLogged: false,
+                createdAt: new Date().toLocaleString('pt-BR')
+            };
+            
+            phones.push(phoneData);
+            renderizarTela(phoneData);
+            atualizarStats();
+            
+            // Animação
+            gsap.from(`.phone-wrapper[data-id="${id}"]`, {
+                scale: 0,
+                rotation: -10,
+                duration: 0.6,
+                ease: 'back.out(1.7)'
+            });
+            
+            return phoneData;
+        }
+
+        function renderizarTela(data) {
+            const container = document.getElementById('phonesContainer');
+            const social = socialConfigs[data.socialNetwork] || socialConfigs.instagram;
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'phone-wrapper';
+            wrapper.dataset.id = data.id;
+            
+            const initials = data.accountName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            
+            wrapper.innerHTML = `
+                <div class="phone">
+                    <button class="phone-close" onclick="removerTela(${data.id})" title="Remover tela">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="phone-notch">
+                        <div class="camera"></div>
+                        <div class="speaker"></div>
+                        <div class="camera"></div>
+                    </div>
+                    <div class="phone-screen">
+                        <div class="phone-status-bar">
+                            <span class="time">${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</span>
+                            <span class="icons">
+                                <i class="fas fa-signal"></i>
+                                <i class="fas fa-wifi"></i>
+                                <i class="fas fa-battery-three-quarters"></i>
+                            </span>
+                        </div>
+                        
+                        <div class="social-login">
+                            <div class="avatar" style="background: linear-gradient(135deg, ${social.color}, ${social.color}dd);">
+                                ${initials}
+                            </div>
+                            
+                            <div class="account-label">
+                                <strong>${data.accountName}</strong><br>
+                                <span style="color: #666; font-size: 0.8rem;">${data.accountUser}</span>
+                            </div>
+                            
+                            <button class="social-btn ${social.btnClass}" onclick="logarConta(${data.id})">
+                                <i class="${social.icon}"></i> 
+                                Logar com ${social.label}
+                            </button>
+                            
+                            <div class="login-status ${data.isLogged ? '' : 'logged-out'}" id="status_${data.id}">
+                                <span class="dot"></span>
+                                ${data.isLogged ? 'Conectado' : 'Desconectado'}
+                            </div>
+                            
+                            <div style="font-size: 0.6rem; color: #444; margin-top: 5px; font-family: 'Orbitron', monospace;">
+                                ID: #${data.id} | ${data.createdAt}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(wrapper);
+            
+            // Atualizar hora em tempo real
+            setInterval(() => {
+                const timeEl = wrapper.querySelector('.phone-status-bar .time');
+                if (timeEl) {
+                    timeEl.textContent = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+                }
+            }, 10000);
+        }
+
+        function logarConta(id) {
+            const phone = phones.find(p => p.id === id);
+            if (!phone) return;
+            
+            phone.isLogged = !phone.isLogged;
+            
+            const statusEl = document.getElementById(`status_${id}`);
+            if (statusEl) {
+                statusEl.className = `login-status ${phone.isLogged ? '' : 'logged-out'}`;
+                statusEl.innerHTML = `
+                    <span class="dot"></span>
+                    ${phone.isLogged ? 'Conectado' : 'Desconectado'}
+                `;
+            }
+            
+            // Animação de sucesso
+            const btn = document.querySelector(`.phone-wrapper[data-id="${id}"] .social-btn`);
+            if (btn) {
+                gsap.from(btn, {
+                    scale: 1.3,
+                    duration: 0.3,
+                    ease: 'back.out(2)',
+                    boxShadow: phone.isLogged ? '0 0 60px rgba(0,255,136,0.5)' : '0 0 60px rgba(255,0,0,0.5)'
+                });
+            }
+            
+            atualizarStats();
+            mostrarNotificacao(
+                `${phone.isLogged ? '✅ Logado' : '❌ Deslogado'}: ${phone.accountName}`,
+                phone.isLogged ? '#00ff88' : '#ff4444'
+            );
+        }
+
+        function removerTela(id) {
+            const index = phones.findIndex(p => p.id === id);
+            if (index === -1) return;
+            
+            const wrapper = document.querySelector(`.phone-wrapper[data-id="${id}"]`);
+            if (wrapper) {
+                gsap.to(wrapper, {
+                    scale: 0,
+                    rotation: 20,
+                    opacity: 0,
+                    duration: 0.4,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        wrapper.remove();
+                        phones.splice(index, 1);
+                        accountCounter--;
+                        atualizarStats();
+                    }
+                });
+            }
+        }
+
+        function criarMultiplasTelas(quantidade = 50) {
+            const redes = Object.keys(socialConfigs);
+            
+            for (let i = 0; i < quantidade; i++) {
+                const network = redes[Math.floor(Math.random() * redes.length)];
+                const num = Math.floor(Math.random() * 10000);
+                
+                criarTela({
+                    name: `Conta ${network} ${num}`,
+                    user: `@${network}${num}`,
+                    network: network,
+                    password: `senha${num}`
+                });
+            }
+            
+            mostrarNotificacao(`📱 ${quantidade} novas telas criadas!`, '#00ffff');
+            
+            // Scroll para o final
+            setTimeout(() => {
+                document.getElementById('phonesContainer').scrollTo({
+                    top: document.getElementById('phonesContainer').scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 500);
+        }
+
+        // ============================================================
+        // MODAL
+        // ============================================================
+        function abrirModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('accountName').focus();
+        }
+
+        function fecharModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        document.getElementById('createAccountForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('accountName').value.trim();
+            const user = document.getElementById('accountUser').value.trim();
+            const network = document.getElementById('socialNetwork').value;
+            const password = document.getElementById('accountPassword').value;
+            
+            if (!name || !user) {
+                mostrarNotificacao('⚠️ Preencha todos os campos!', '#ffaa00');
+                return;
+            }
+            
+            criarTela({
+                name: name,
+                user: user,
+                network: network,
+                password: password
+            });
+            
+            fecharModal();
+            document.getElementById('createAccountForm').reset();
+            
+            mostrarNotificacao(`📱 Tela criada: ${name}`, '#00ffff');
+        });
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') fecharModal();
+        });
+
+        // Fechar modal clicando fora
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) fecharModal();
+        });
+
+        // ============================================================
+        // STATS
+        // ============================================================
+        function atualizarStats() {
+            document.getElementById('totalPhones').textContent = phones.length;
+            document.getElementById('totalAccounts').textContent = accountCounter;
+            document.getElementById('totalLogged').textContent = phones.filter(p => p.isLogged).length;
+        }
+
+        // ============================================================
+        // NOTIFICAÇÕES
+        // ============================================================
+        function mostrarNotificacao(mensagem, cor) {
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                padding: 15px 25px;
+                background: rgba(10, 10, 10, 0.95);
+                border: 2px solid ${cor};
+                border-radius: 15px;
+                color: #fff;
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 1rem;
+                font-weight: 600;
+                z-index: 9999;
+                box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 30px ${cor}40;
+                backdrop-filter: blur(10px);
+                animation: slideInRight 0.5s ease, fadeOut 0.5s ease 3s forwards;
+                max-width: 400px;
+            `;
+            notif.innerHTML = mensagem;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.remove();
+            }, 3500);
+        }
+
+        // Adicionar CSS das notificações
+        const styleNotif = document.createElement('style');
+        styleNotif.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(50px); }
+            }
+        `;
+        document.head.appendChild(styleNotif);
+
+        // ============================================================
+        // INICIALIZAÇÃO COM 10 TELAS EXEMPLO
+        // ============================================================
+        function initSistema() {
+            const exemplos = [
+                { name: 'Minha Conta Pessoal', user: '@joaosilva', network: 'instagram' },
+                { name: 'Empresa Tech', user: '@techcorp', network: 'linkedin' },
+                { name: 'Canal Games', user: '@gamerpro', network: 'youtube' },
+                { name: 'Social Media', user: '@socialmedia', network: 'facebook' },
+                { name: 'Vendas Online', user: '@vendas', network: 'whatsapp' },
+                { name: 'Comunidade Dev', user: '@devcommunity', network: 'twitter' },
+                { name: 'Criador de Conteúdo', user: '@creator', network: 'tiktok' },
+                { name: 'Negócios Locais', user: '@localbusiness', network: 'instagram' },
+                { name: 'Educação Digital', user: '@edutech', network: 'telegram' },
+                { name: 'Marketing Digital', user: '@marketing', network: 'facebook' }
+            ];
+            
+            exemplos.forEach(ex => {
+                criarTela(ex);
+            });
+            
+            mostrarNotificacao('🚀 10 telas carregadas com sucesso!', '#00ffff');
+        }
+
+        // Iniciar
+        document.addEventListener('DOMContentLoaded', initSistema);
+
+        console.log('📱 SocialCell carregado com sucesso!');
+        console.log('💡 Dica: Clique no botão "+50" para criar 50 telas de uma vez!');
+        console.log('🎯 Total de contas suportadas: INFINITAS!');
+    </script>
+</body>
+</html>
