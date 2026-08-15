@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch Bot Multi-Conta com Conversa</title>
+    <title>Twitch Bots - Conversa Automática</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +18,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background: #1a1a1a;
             border-radius: 20px;
@@ -31,10 +31,6 @@
             text-align: center;
             color: #9146ff;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
         .login-area {
             text-align: center;
@@ -53,7 +49,7 @@
         }
         .manual-token-area input {
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #333;
@@ -64,33 +60,44 @@
             border-color: #9146ff;
             outline: none;
         }
-        .btn-add-token {
-            background: #00ff88;
-            color: #0a0a0a;
-            border: none;
-            padding: 10px 25px;
+        .btn {
+            padding: 10px 20px;
             border-radius: 8px;
+            border: none;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
-        }
-        .btn-add-token:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0,255,136,0.3);
         }
         .btn-twitch {
             background: #9146ff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
             color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
         }
         .btn-twitch:hover {
             transform: scale(1.05);
             box-shadow: 0 0 20px rgba(145, 70, 255, 0.5);
+        }
+        .btn-add {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+        .btn-add:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        }
+        .btn-danger {
+            background: #ff4444;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            transform: scale(1.05);
+        }
+        .btn-activate {
+            background: #00ff88;
+            color: #0a0a0a;
+        }
+        .btn-activate.active {
+            background: #ff4444;
+            color: #fff;
         }
         .config-area {
             margin: 20px 0;
@@ -170,53 +177,33 @@
             color: #ff4444;
             border: 1px solid #ff4444;
         }
-        .account-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
         .account-actions button {
-            padding: 8px 14px;
+            padding: 8px 16px;
             border: none;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
-            font-size: 0.8rem;
         }
-        .btn-activate {
+        .account-actions .btn-activate {
             background: #00ff88;
             color: #0a0a0a;
         }
-        .btn-activate:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0,255,136,0.3);
-        }
-        .btn-activate.active {
+        .account-actions .btn-activate.active {
             background: #ff4444;
             color: #fff;
         }
-        .btn-conversation {
-            background: #ffaa00;
-            color: #0a0a0a;
-        }
-        .btn-conversation.active {
-            background: #9146ff;
-            color: #fff;
-        }
-        .btn-remove {
+        .account-actions .btn-remove {
             background: #ff4444;
             color: #fff;
-        }
-        .btn-remove:hover {
-            transform: scale(1.05);
+            margin-left: 5px;
         }
         .log-area {
             margin-top: 20px;
             background: #0a0a0a;
             border-radius: 10px;
             padding: 10px;
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
             font-family: monospace;
             font-size: 0.8rem;
@@ -239,8 +226,11 @@
         .log-entry.chat {
             color: #ffaa00;
         }
-        .log-entry.self {
+        .log-entry.bot {
             color: #9146ff;
+        }
+        .log-entry.self {
+            color: #00ff88;
         }
         .empty-message {
             color: #666;
@@ -257,6 +247,13 @@
             font-size: 0.7rem;
             color: #888;
         }
+        .actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
@@ -266,7 +263,11 @@
                 align-items: stretch;
             }
             .account-actions {
-                justify-content: center;
+                display: flex;
+                gap: 5px;
+            }
+            .account-actions button {
+                flex: 1;
             }
             .manual-token-area input {
                 min-width: 100%;
@@ -277,20 +278,26 @@
 <body>
 
 <div class="container">
-    <h1>🤖 Twitch Bot Multi-Conta</h1>
+    <h1>🤖 Twitch Bots - Conversa Automática</h1>
 
     <div class="login-area">
         <div class="manual-token-area">
-            <input type="text" id="manualTokenInput" placeholder="Token OAuth (ex: oauth:xxxxxxxx)">
-            <input type="text" id="manualUsernameInput" placeholder="Nome do bot (ex: meu_bot)">
-            <button class="btn-add-token" id="addTokenBtn">➕ Adicionar Bot</button>
+            <input type="text" id="manualTokenInput" placeholder="Token OAuth (ex: oauth:xxx)">
+            <input type="text" id="manualUsernameInput" placeholder="Nome do bot">
+            <button class="btn btn-add" id="addTokenBtn">➕ Adicionar Bot</button>
         </div>
-        <div class="small">Gere um token em <a href="https://twitchtokengenerator.com" target="_blank" style="color:#9146ff;">twitchtokengenerator.com</a> (Bot Chat Token) e cole acima.</div>
+        <div class="small">Gere tokens em <a href="https://twitchtokengenerator.com" target="_blank" style="color:#9146ff;">twitchtokengenerator.com</a> (Bot Chat Token)</div>
     </div>
 
     <div class="config-area">
         <input type="text" id="targetChannel" placeholder="Canal alvo (sem #)" value="lpxstreaming">
-        <button id="setChannelBtn" class="btn-twitch">Definir Canal</button>
+        <button class="btn btn-twitch" id="setChannelBtn" style="background:#333; color:#fff;">Definir Canal</button>
+    </div>
+
+    <div class="actions-bar">
+        <button class="btn btn-twitch" id="activateAllBtn">🚀 Ativar Todos</button>
+        <button class="btn btn-danger" id="deactivateAllBtn">⏹ Desativar Todos</button>
+        <button class="btn" id="clearLogsBtn" style="background:#555; color:#fff;">🧹 Limpar Logs</button>
     </div>
 
     <div id="accountsContainer" class="accounts-list">
@@ -298,11 +305,11 @@
     </div>
 
     <div id="logArea" class="log-area">
-        <div class="log-entry info">🚀 Sistema pronto. Adicione uma conta e ative o bot.</div>
+        <div class="log-entry info">🚀 Sistema pronto. Adicione contas e ative os bots.</div>
     </div>
 
     <div class="footer">
-        <a href="#" id="clearLogsBtn">Limpar logs</a>
+        <span id="liveStatus">🔴 Verificando status da live...</span>
     </div>
 </div>
 
@@ -318,7 +325,8 @@
     let accounts = {};
     let accountCounter = 0;
     let targetChannel = document.getElementById('targetChannel').value.trim() || 'lpxstreaming';
-    let wsConnections = {}; // { accountId: WebSocket }
+    let wsConnections = {};
+    let liveActive = false;
 
     // ================================================================
     // LOGS
@@ -334,7 +342,7 @@
         entry.textContent = prefix + message;
         logArea.appendChild(entry);
         logArea.scrollTop = logArea.scrollHeight;
-        if (logArea.children.length > 200) {
+        if (logArea.children.length > 300) {
             logArea.removeChild(logArea.firstChild);
         }
     }
@@ -352,20 +360,26 @@
             return;
         }
         const id = ++accountCounter;
+        const personalidades = [
+            { nome: 'Alegre', cor: '#ff6b6b', saudacoes: ['e aí galera!', 'opa!'] },
+            { nome: 'Cínico', cor: '#ffd93d', saudacoes: ['hmm, interessante', 'é o que temos'] },
+            { nome: 'Entusiasta', cor: '#6bcb77', saudacoes: ['que demais!', 'sensacional!'] },
+            { nome: 'Perguntador', cor: '#4d96ff', saudacoes: ['alguém sabe?', 'como assim?'] }
+        ];
+        const persona = personalidades[Math.floor(Math.random() * personalidades.length)];
         accounts[id] = {
             token: token,
             username: username.trim(),
+            persona: persona,
             status: 'offline',
             ws: null,
             interval: null,
-            conversationMode: false,
             lastMessageTime: 0,
             userCooldowns: {},
-            _pingInterval: null,
-            _spontaneousInterval: null
+            messageCount: 0
         };
         renderAccounts();
-        addLog(`✅ Conta ${username} adicionada!`, 'success', id);
+        addLog(`✅ Conta ${username} adicionada (${persona.nome})!`, 'success', id);
     }
 
     // ================================================================
@@ -395,23 +409,21 @@
             const acc = accounts[id];
             const statusClass = acc.status === 'online' ? 'status-online' : 'status-offline';
             const statusText = acc.status === 'online' ? '🟢 Online' : '🔴 Offline';
-            const btnText = acc.status === 'online' ? 'Desativar Bot' : 'Ativar Bot';
+            const btnText = acc.status === 'online' ? 'Desativar' : 'Ativar';
             const btnClass = acc.status === 'online' ? 'btn-activate active' : 'btn-activate';
-            const convClass = acc.conversationMode ? 'active' : '';
-            const convText = acc.conversationMode ? 'Conversa ON' : 'Conversa OFF';
             const avatarText = acc.username.substring(0, 2).toUpperCase();
             html += `
                 <div class="account-card" data-id="${id}">
                     <div class="account-info">
-                        <div class="account-avatar">${avatarText}</div>
+                        <div class="account-avatar" style="background:${acc.persona.cor};">${avatarText}</div>
                         <div>
                             <div class="account-name">${acc.username}</div>
                             <span class="account-status ${statusClass}">${statusText}</span>
+                            <span style="font-size:0.7rem; color:#888; margin-left:8px;">${acc.persona.nome}</span>
                         </div>
                     </div>
                     <div class="account-actions">
                         <button class="${btnClass}" onclick="toggleBot(${id})">${btnText}</button>
-                        <button class="btn-conversation ${convClass}" onclick="toggleConversation(${id})">${convText}</button>
                         <button class="btn-remove" onclick="removeAccount(${id})">✕</button>
                     </div>
                 </div>
@@ -421,7 +433,41 @@
     }
 
     // ================================================================
-    // BOT - ATIVAR / DESATIVAR
+    // FUNÇÕES DE CONVERSÃO (BOT)
+    // ================================================================
+    function gerarResposta(mensagem, persona, username) {
+        const respostas = {
+            'Alegre': [
+                "hahaha verdade! 😂", "isso é épico! 🔥", "alguém mais tá amando essa live?",
+                "que jogada!", "melhor momento!", "hahaha que isso", "pois é, tô curtindo",
+                "alguém mais viu isso? 👀", "sim, concordo!", "POGGERS!", "KEKW", "LUL",
+                "monkaS", "caraca, que momento!", "sensacional!"
+            ],
+            'Cínico': [
+                "hmm, interessante", "é o que temos", "não sei não hein", "cada um com sua opinião",
+                "é, pode ser", "vai entender", "pois é", "faz sentido", "talvez", "vamos ver"
+            ],
+            'Entusiasta': [
+                "que demais! 🔥", "sensacional!", "maravilhoso!", "arrasou!",
+                "melhor coisa!", "eu amei!", "incrível!", "fantástico!",
+                "top demais!", "show!"
+            ],
+            'Perguntador': [
+                "alguém sabe?", "como assim?", "por que?", "onde isso?",
+                "quando?", "quem?", "o que aconteceu?", "como funciona?",
+                "alguém mais percebeu?", "será?"
+            ]
+        };
+        const lista = respostas[persona.nome] || respostas['Alegre'];
+        // Se for uma saudação, use uma das saudacoes
+        if (mensagem.toLowerCase().includes('oi') || mensagem.toLowerCase().includes('olá')) {
+            return persona.saudacoes[Math.floor(Math.random() * persona.saudacoes.length)];
+        }
+        return lista[Math.floor(Math.random() * lista.length)];
+    }
+
+    // ================================================================
+    // ATIVAR BOT (WebSocket)
     // ================================================================
     function toggleBot(id) {
         const acc = accounts[id];
@@ -436,13 +482,11 @@
     function activateBot(id) {
         const acc = accounts[id];
         if (!acc) return;
-
         const channel = targetChannel;
         if (!channel) {
             addLog('❌ Defina um canal alvo primeiro.', 'error', id);
             return;
         }
-
         if (acc.status === 'online') return;
 
         try {
@@ -450,7 +494,7 @@
             acc.ws = ws;
             acc.status = 'connecting';
             renderAccounts();
-            addLog(`🔄 Conectando ao chat da Twitch...`, 'info', id);
+            addLog(`🔄 Conectando ao chat...`, 'info', id);
 
             ws.onopen = () => {
                 ws.send(`PASS ${acc.token}`);
@@ -460,47 +504,57 @@
                 acc.status = 'online';
                 renderAccounts();
 
-                // Ping
-                acc._pingInterval = setInterval(() => {
+                // Ping/pong
+                const pingInterval = setInterval(() => {
                     if (ws.readyState === WebSocket.OPEN) {
                         ws.send('PING :tmi.twitch.tv');
                     }
                 }, 30000);
+                acc._pingInterval = pingInterval;
 
-                // Spontaneous messages (se conversationMode estiver ativo, ele já envia)
-                acc._spontaneousInterval = setInterval(() => {
+                // Comentários espontâneos (a cada 2 minutos)
+                const spontaneousInterval = setInterval(() => {
                     if (acc.status !== 'online') {
-                        clearInterval(acc._spontaneousInterval);
+                        clearInterval(spontaneousInterval);
                         return;
                     }
-                    // Se modo conversa ativo, envia uma mensagem aleatória para estimular interação
-                    if (acc.conversationMode) {
-                        const frases = [
-                            "alguém aí? 👀",
-                            "como vocês estão?",
-                            "essa live tá incrível!",
-                            "alguém mais animado?",
-                            "que momento!",
-                            "tô adorando a interação aqui",
-                            "alguém viu aquilo?",
-                            "hahaha isso foi bom demais"
-                        ];
-                        const frase = frases[Math.floor(Math.random() * frases.length)];
-                        if (ws.readyState === WebSocket.OPEN) {
-                            ws.send(`PRIVMSG #${channel} :${frase}`);
-                            addLog(`🗣️ ${frase}`, 'info', id);
-                        }
+                    const frases = [
+                        "essa live tá muito boa! 🔥",
+                        "alguém mais animado pro próximo jogo?",
+                        "melhor live do dia, com certeza",
+                        "quanto tempo hein, tava com saudade",
+                        "hahaha esse momento foi épico",
+                        "alguém sabe dizer que horas termina?",
+                        "que gameplay insana, parabéns!",
+                        "estou amando a interação no chat",
+                        "alguém mais curtiu essa parte?",
+                        "não vejo a hora do próximo jogo"
+                    ];
+                    // Escolhe uma frase adaptada à personalidade
+                    let frase = frases[Math.floor(Math.random() * frases.length)];
+                    if (acc.persona.nome === 'Perguntador') {
+                        frase = "alguém mais viu isso?" + (Math.random() > 0.5 ? " 👀" : "");
+                    } else if (acc.persona.nome === 'Cínico') {
+                        frase = "é... vamos ver o que vem por aí";
                     }
-                }, 60000); // a cada 1 minuto
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(`PRIVMSG #${channel} :${frase}`);
+                        addLog(`🗣️ ${frase}`, 'info', id);
+                    }
+                }, 120000);
+                acc._spontaneousInterval = spontaneousInterval;
 
-                // Inicia o loop de conversa (se ativo)
-                if (acc.conversationMode) {
-                    addLog(`💬 Modo conversa ativado para ${acc.username}`, 'success', id);
+                // Verificar fim da live (a cada 30 segundos)
+                if (!acc._liveCheckInterval) {
+                    acc._liveCheckInterval = setInterval(() => {
+                        verificarLive();
+                    }, 30000);
                 }
             };
 
             ws.onmessage = (event) => {
                 const msg = event.data;
+                // PING
                 if (msg.startsWith('PING')) {
                     ws.send('PONG :tmi.twitch.tv');
                     return;
@@ -511,110 +565,57 @@
                     return;
                 }
 
+                // Parse de mensagem do chat
                 const privmsgMatch = msg.match(/^:(\w+)!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #(\w+) :(.+)$/);
                 if (privmsgMatch) {
                     const username = privmsgMatch[1];
                     const channelName = privmsgMatch[2];
                     const message = privmsgMatch[3];
                     if (channelName.toLowerCase() === channel.toLowerCase()) {
-                        // Se o modo conversa está ativo, responde a QUALQUER mensagem (não só comandos)
-                        if (acc.conversationMode && !message.startsWith('!')) {
-                            const now = Date.now();
-                            // Cooldown por usuário (30s para conversa)
-                            if (acc.userCooldowns[username] && (now - acc.userCooldowns[username]) < 30000) return;
-                            // Cooldown global (3s)
-                            if ((now - acc.lastMessageTime) < 3000) return;
+                        addLog(`💬 ${username}: ${message}`, 'chat', id);
 
-                            // Gerar resposta (pode ser IA ou frases pré-definidas)
-                            const respostas = [
-                                "hahaha verdade! 😂",
-                                "nossa, concordo!",
-                                "isso é épico! 🔥",
-                                "alguém mais tá amando essa live?",
-                                "que jogada!",
-                                "melhor momento!",
-                                "hahaha que isso",
-                                "pois é, tô curtindo",
-                                "alguém mais viu isso? 👀",
-                                "sim, concordo!",
-                                "POGGERS!",
-                                "KEKW",
-                                "LUL",
-                                "monkaS",
-                                "isso foi insano!",
-                                "caraca, que momento!",
-                                "concordo plenamente",
-                                "eu também tô achando",
-                                "hahaha boa",
-                                "verdade, verdade",
-                                "sim, sim",
-                                "exato",
-                                "pois é",
-                                "né?",
-                                "isso aí",
-                                "hahaha",
-                                "kkkk",
-                                "verdade",
-                                "sim"
-                            ];
-                            // Resposta aleatória
-                            const resposta = respostas[Math.floor(Math.random() * respostas.length)];
+                        // CONVERSA ENTRE BOTS: se o usuário for outro bot (username de outra conta), responder com mais frequência (60%)
+                        const isBot = Object.values(accounts).some(a => a.username === username && a.status === 'online');
+                        const prob = isBot ? 0.6 : 0.25;
+
+                        if (Math.random() < prob && !message.startsWith('!')) {
+                            const now = Date.now();
+                            if (acc.userCooldowns[username] && (now - acc.userCooldowns[username]) < 30000) return; // 30s entre respostas ao mesmo usuário
+                            if ((now - acc.lastMessageTime) < 4000) return; // 4s global
+
+                            const resposta = gerarResposta(message, acc.persona, username);
                             ws.send(`PRIVMSG #${channel} :${resposta}`);
                             acc.lastMessageTime = now;
                             acc.userCooldowns[username] = now;
-                            addLog(`🤖 ${resposta}`, 'success', id);
-                        } else {
-                            // Modo normal: responde a 30% das mensagens
-                            if (!acc.conversationMode && Math.random() < 0.3 && !message.startsWith('!')) {
-                                const now = Date.now();
-                                if (acc.userCooldowns[username] && (now - acc.userCooldowns[username]) < 60000) return;
-                                if ((now - acc.lastMessageTime) < 5000) return;
-
-                                const respostas = [
-                                    "hahaha verdade! 😂",
-                                    "nossa, concordo!",
-                                    "isso é épico! 🔥",
-                                    "alguém mais tá amando essa live?",
-                                    "que jogada!",
-                                    "melhor momento!",
-                                    "hahaha que isso",
-                                    "pois é, tô curtindo",
-                                    "alguém mais viu isso? 👀",
-                                    "sim, concordo!",
-                                    "POGGERS!",
-                                    "KEKW",
-                                    "LUL",
-                                    "monkaS",
-                                    "isso foi insano!",
-                                    "caraca, que momento!"
-                                ];
-                                const resposta = respostas[Math.floor(Math.random() * respostas.length)];
-                                ws.send(`PRIVMSG #${channel} :${resposta}`);
-                                acc.lastMessageTime = now;
-                                acc.userCooldowns[username] = now;
-                                addLog(`🤖 ${resposta}`, 'success', id);
-                            }
+                            acc.messageCount++;
+                            addLog(`🤖 ${resposta}`, 'bot', id);
                         }
                     }
                 }
             };
 
             ws.onclose = (e) => {
-                addLog(`⚠️ Conexão fechada.`, 'error', id);
                 if (acc.status === 'online') {
+                    addLog(`⚠️ Conexão fechada. Tentando reconectar...`, 'error', id);
                     deactivateBot(id);
+                    // Tentar reconectar após 5s se a live ainda estiver ativa
+                    setTimeout(() => {
+                        if (liveActive) {
+                            activateBot(id);
+                        }
+                    }, 5000);
                 }
             };
 
             ws.onerror = (err) => {
-                addLog(`❌ Erro no WebSocket: ${err.message || 'erro desconhecido'}`, 'error', id);
+                addLog(`❌ Erro no WebSocket: ${err.message || 'erro'}`, 'error', id);
                 if (acc.status === 'online') {
                     deactivateBot(id);
                 }
             };
 
         } catch (e) {
-            addLog(`❌ Erro ao ativar bot: ${e.message}`, 'error', id);
+            addLog(`❌ Erro: ${e.message}`, 'error', id);
         }
     }
 
@@ -635,6 +636,10 @@
             clearInterval(acc._spontaneousInterval);
             acc._spontaneousInterval = null;
         }
+        if (acc._liveCheckInterval) {
+            clearInterval(acc._liveCheckInterval);
+            acc._liveCheckInterval = null;
+        }
         acc.status = 'offline';
         acc.lastMessageTime = 0;
         acc.userCooldowns = {};
@@ -643,22 +648,53 @@
     }
 
     // ================================================================
-    // MODO CONVERSA
+    // VERIFICAR LIVE
     // ================================================================
-    function toggleConversation(id) {
-        const acc = accounts[id];
-        if (!acc) return;
-        if (acc.status !== 'online') {
-            addLog('⚠️ Ative o bot primeiro antes de ativar a conversa.', 'error', id);
-            return;
+    async function verificarLive() {
+        try {
+            // Usa API pública da Twitch (sem autenticação) para verificar se a live está no ar
+            const response = await fetch(`https://api.twitch.tv/helix/streams?user_login=${targetChannel}`, {
+                headers: {
+                    'Client-Id': 'kimne78kx3ncx6brgo4mv6gki5h1ko' // Client ID público da Twitch
+                }
+            });
+            const data = await response.json();
+            const isLive = data.data && data.data.length > 0;
+            liveActive = isLive;
+            document.getElementById('liveStatus').innerHTML = isLive ?
+                `🟢 Live ativa no canal #${targetChannel}` :
+                `🔴 Live encerrada ou offline. Os bots serão desativados.`;
+            if (!isLive) {
+                // Se a live acabou, desativa todos os bots
+                Object.keys(accounts).forEach(id => {
+                    if (accounts[id].status === 'online') {
+                        deactivateBot(id);
+                    }
+                });
+            }
+        } catch (e) {
+            // Se não conseguir verificar, assume que está ativa
+            document.getElementById('liveStatus').innerHTML = `⚠️ Não foi possível verificar o status da live.`;
         }
-        acc.conversationMode = !acc.conversationMode;
-        renderAccounts();
-        if (acc.conversationMode) {
-            addLog('💬 Modo conversa ATIVADO. Responderei a todas as mensagens.', 'success', id);
-        } else {
-            addLog('💬 Modo conversa DESATIVADO. Voltando ao modo normal.', 'info', id);
-        }
+    }
+
+    // ================================================================
+    // AÇÕES EM MASSA
+    // ================================================================
+    function activateAll() {
+        Object.keys(accounts).forEach(id => {
+            if (accounts[id].status !== 'online') {
+                toggleBot(id);
+            }
+        });
+    }
+
+    function deactivateAll() {
+        Object.keys(accounts).forEach(id => {
+            if (accounts[id].status === 'online') {
+                toggleBot(id);
+            }
+        });
     }
 
     // ================================================================
@@ -684,10 +720,14 @@
             targetChannel = val;
             localStorage.setItem('twitchBotChannel', val);
             addLog(`📡 Canal alvo definido para #${targetChannel}`, 'info');
+            verificarLive();
         } else {
             addLog('⚠️ Digite um nome de canal válido.', 'error');
         }
     });
+
+    document.getElementById('activateAllBtn').addEventListener('click', activateAll);
+    document.getElementById('deactivateAllBtn').addEventListener('click', deactivateAll);
 
     document.getElementById('clearLogsBtn').addEventListener('click', function(e) {
         e.preventDefault();
@@ -696,7 +736,7 @@
     });
 
     // ================================================================
-    // CARREGAR CANAL SALVO
+    // CARREGAR CANAL SALVO E INICIAR VERIFICAÇÃO
     // ================================================================
     const savedChannel = localStorage.getItem('twitchBotChannel');
     if (savedChannel) {
@@ -705,9 +745,13 @@
         addLog(`📡 Canal carregado: #${targetChannel}`, 'info');
     }
 
-    document.getElementById('targetChannel').addEventListener('change', function() {
-        localStorage.setItem('twitchBotChannel', this.value.trim());
-    });
+    // Verificação inicial da live
+    setTimeout(() => {
+        verificarLive();
+    }, 2000);
+
+    // Verificar a cada 60 segundos
+    setInterval(verificarLive, 60000);
 
     // ================================================================
     // EXPOR FUNÇÕES GLOBAIS
@@ -715,11 +759,15 @@
     window.toggleBot = toggleBot;
     window.removeAccount = removeAccount;
     window.addAccount = addAccount;
-    window.toggleConversation = toggleConversation;
     window.addLog = addLog;
+    window.activateAll = activateAll;
+    window.deactivateAll = deactivateAll;
+    window.activateBot = activateBot;
+    window.deactivateBot = deactivateBot;
+    window.verificarLive = verificarLive;
 
-    console.log('🤖 Twitch Bot Multi-Conta com Modo Conversa carregado.');
-    console.log('📌 Ative o bot e depois clique em "Conversa ON" para iniciar a interação automática.');
+    console.log('🤖 Twitch Bots - Conversa Automática carregado.');
+    console.log('📌 Adicione várias contas e ative para conversarem entre si!');
 </script>
 
 </body>
