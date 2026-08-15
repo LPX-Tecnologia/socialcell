@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch Bot Multi-Conta</title>
+    <title>Twitch Bot - Login com Token</title>
     <style>
         * {
             margin: 0;
@@ -31,14 +31,10 @@
             text-align: center;
             color: #9146ff;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
         .login-area {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             padding: 20px;
             background: #0f0f0f;
             border-radius: 15px;
@@ -62,7 +58,41 @@
         .btn-twitch:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
+        }
+        .manual-token-area {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .manual-token-area input {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #0a0a0a;
+            color: #fff;
+        }
+        .manual-token-area input:focus {
+            border-color: #9146ff;
+            outline: none;
+        }
+        .btn-add-token {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-add-token:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
         }
         .config-area {
             margin: 20px 0;
@@ -162,11 +192,6 @@
             background: #ff4444;
             color: #fff;
         }
-        .btn-activate:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
         .btn-remove {
             background: #ff4444;
             color: #fff;
@@ -214,22 +239,9 @@
             color: #666;
             font-size: 0.8rem;
         }
-        .footer a {
-            color: #9146ff;
-            text-decoration: none;
-        }
-        .alert {
-            background: #ffaa0044;
-            border: 1px solid #ffaa00;
-            color: #ffaa00;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            text-align: center;
-        }
-        .alert a {
-            color: #fff;
-            font-weight: bold;
+        .small {
+            font-size: 0.7rem;
+            color: #888;
         }
         @media (max-width: 600px) {
             .container {
@@ -246,6 +258,9 @@
             .account-actions button {
                 flex: 1;
             }
+            .manual-token-area input {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
@@ -254,17 +269,20 @@
 <div class="container">
     <h1>🤖 Twitch Bot Multi-Conta</h1>
 
-    <!-- Área de login OAuth -->
+    <!-- Área de login -->
     <div class="login-area">
-        <button id="loginBtn" class="btn-twitch">🔑 Login com Twitch</button>
-        <div style="margin-top: 10px; font-size: 0.8rem; color: #888;">
-            Clique para autorizar e adicionar uma conta
+        <button id="loginBtn" class="btn-twitch">🔑 Login com Twitch (OAuth)</button>
+        <div style="margin-top: 10px; color: #888; font-size: 0.8rem;">
+            <span style="color: #ffaa00;">⚠️ Se aparecer erro de 2FA, use a opção abaixo com token manual.</span>
         </div>
-        <div id="clientIdAlert" style="display:none;" class="alert">
-            ⚠️ <strong>Client ID não configurado!</strong> 
-            <a href="https://dev.twitch.tv/console/apps" target="_blank">Crie um aplicativo na Twitch</a> 
-            e substitua <code>CLIENT_ID</code> no código (linha ~150).
+
+        <!-- Campo para colar token manualmente -->
+        <div class="manual-token-area">
+            <input type="text" id="manualTokenInput" placeholder="Cole o token aqui (ex: oauth:xxxxxxxx)">
+            <input type="text" id="manualUsernameInput" placeholder="Nome de usuário (ex: meu_bot)" style="flex:0.5; min-width:150px;">
+            <button class="btn-add-token" id="addTokenBtn">➕ Adicionar com Token</button>
         </div>
+        <div class="small">Gere um token em <a href="https://twitchtokengenerator.com" target="_blank" style="color:#9146ff;">twitchtokengenerator.com</a> (Bot Chat Token)</div>
     </div>
 
     <!-- Configuração do canal alvo -->
@@ -275,16 +293,15 @@
 
     <!-- Lista de contas -->
     <div id="accountsContainer" class="accounts-list">
-        <div class="empty-message">Nenhuma conta conectada. Faça login para começar.</div>
+        <div class="empty-message">Nenhuma conta conectada. Adicione uma conta acima.</div>
     </div>
 
-    <!-- Área de logs -->
+    <!-- Logs -->
     <div id="logArea" class="log-area">
-        <div class="log-entry info">🚀 Sistema pronto. Faça login com sua conta Twitch.</div>
+        <div class="log-entry info">🚀 Sistema pronto. Adicione uma conta para começar.</div>
     </div>
 
     <div class="footer">
-        Desenvolvido para gerenciar múltiplas contas na Twitch.
         <a href="#" id="clearLogsBtn">Limpar logs</a>
     </div>
 </div>
@@ -329,11 +346,9 @@
     // ============================================================
     // CONFIGURAÇÕES
     // ============================================================
-    // ⚠️ SUBSTITUA PELO SEU CLIENT ID OBTIDO EM:
-    // https://dev.twitch.tv/console/apps
-    const CLIENT_ID = 'seu_client_id_aqui'; // <-- COLOQUE SEU CLIENT ID AQUI
+    const CLIENT_ID = 'seu_client_id_aqui'; // <-- SUBSTITUA PELO SEU CLIENT ID
     const REDIRECT_URI = window.location.origin + window.location.pathname;
-    const SCOPES = 'chat:read chat:edit user:read:email';
+    const SCOPES = 'chat:read chat:edit';
 
     // ============================================================
     // ESTADO
@@ -365,13 +380,10 @@
     // OAuth LOGIN
     // ============================================================
     document.getElementById('loginBtn').addEventListener('click', function() {
-        // Verifica se o Client ID foi configurado
         if (!CLIENT_ID || CLIENT_ID === 'seu_client_id_aqui') {
-            document.getElementById('clientIdAlert').style.display = 'block';
-            addLog('❌ Client ID não configurado. Configure o CLIENT_ID no código.', 'error');
+            addLog('❌ Configure o CLIENT_ID no código (linha 252).', 'error');
             return;
         }
-        document.getElementById('clientIdAlert').style.display = 'none';
         const authUrl =
             `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${SCOPES}`;
         window.open(authUrl, '_blank', 'width=600,height=700');
@@ -386,9 +398,7 @@
             const params = new URLSearchParams(hash.substring(1));
             const accessToken = params.get('access_token');
             if (accessToken) {
-                // Limpa a URL
                 window.history.replaceState({}, document.title, window.location.pathname);
-                // Buscar informações do usuário
                 fetchUserInfo(accessToken);
             } else {
                 addLog('❌ Token não encontrado na URL.', 'error');
@@ -417,13 +427,18 @@
     }
 
     // ============================================================
-    // GERENCIAR CONTAS
+    // ADICIONAR CONTA (via OAuth ou manual)
     // ============================================================
     function addAccount(token, user) {
+        // Se o token não começar com oauth:, adiciona
+        if (!token.startsWith('oauth:')) {
+            token = 'oauth:' + token;
+        }
         const id = ++accountCounter;
+        const username = user.display_name || user.login || user.username || 'Usuário';
         accounts[id] = {
             token: token,
-            username: user.display_name || user.login,
+            username: username,
             avatar: user.profile_image_url || '',
             status: 'offline',
             client: null,
@@ -431,9 +446,35 @@
             log: []
         };
         renderAccounts();
-        addLog(`✅ Conta ${accounts[id].username} adicionada!`, 'success');
+        addLog(`✅ Conta ${username} adicionada!`, 'success', id);
     }
 
+    // Adicionar manualmente (via token e nome)
+    function addManualAccount(token, username) {
+        if (!token || !username) {
+            addLog('⚠️ Preencha o token e o nome de usuário.', 'error');
+            return;
+        }
+        if (!token.startsWith('oauth:')) {
+            token = 'oauth:' + token;
+        }
+        const id = ++accountCounter;
+        accounts[id] = {
+            token: token,
+            username: username.trim(),
+            avatar: '',
+            status: 'offline',
+            client: null,
+            interval: null,
+            log: []
+        };
+        renderAccounts();
+        addLog(`✅ Conta ${username} adicionada manualmente!`, 'success', id);
+    }
+
+    // ============================================================
+    // REMOVER CONTA
+    // ============================================================
     function removeAccount(id) {
         if (accounts[id].status === 'online') {
             deactivateBot(id);
@@ -443,11 +484,14 @@
         addLog(`🗑️ Conta removida.`, 'info');
     }
 
+    // ============================================================
+    // RENDERIZAR LISTA DE CONTAS
+    // ============================================================
     function renderAccounts() {
         const container = document.getElementById('accountsContainer');
         const ids = Object.keys(accounts);
         if (ids.length === 0) {
-            container.innerHTML = `<div class="empty-message">Nenhuma conta conectada. Faça login para começar.</div>`;
+            container.innerHTML = `<div class="empty-message">Nenhuma conta conectada. Adicione uma conta acima.</div>`;
             return;
         }
         let html = '';
@@ -478,7 +522,7 @@
     }
 
     // ============================================================
-    // BOT - ATIVAR/DESATIVAR
+    // BOT - ATIVAR / DESATIVAR
     // ============================================================
     function toggleBot(id) {
         const acc = accounts[id];
@@ -529,25 +573,14 @@
                     const username = userstate['display-name'] || userstate.username;
                     addLog(`💬 ${username}: ${message}`, 'chat', id);
 
-                    // Responder com uma frase aleatória (probabilidade 30%)
+                    // Responder com frase aleatória (30% de chance)
                     if (Math.random() < 0.3) {
                         const respostas = [
-                            "hahaha verdade! 😂",
-                            "nossa, concordo!",
-                            "isso é épico! 🔥",
-                            "alguém mais tá amando essa live?",
-                            "que jogada!",
-                            "melhor momento!",
-                            "hahaha que isso",
-                            "pois é, tô curtindo",
-                            "alguém mais viu isso? 👀",
-                            "sim, concordo!",
-                            "POGGERS!",
-                            "KEKW",
-                            "LUL",
-                            "monkaS",
-                            "isso foi insano!",
-                            "caraca, que momento!"
+                            "hahaha verdade! 😂", "nossa, concordo!", "isso é épico! 🔥",
+                            "alguém mais tá amando essa live?", "que jogada!", "melhor momento!",
+                            "hahaha que isso", "pois é, tô curtindo", "alguém mais viu isso? 👀",
+                            "sim, concordo!", "POGGERS!", "KEKW", "LUL", "monkaS",
+                            "isso foi insano!", "caraca, que momento!"
                         ];
                         const resposta = respostas[Math.floor(Math.random() * respostas.length)];
                         client.say(chan, resposta).then(() => {
@@ -583,7 +616,7 @@
                     }).catch(err => {
                         addLog(`❌ Erro ao enviar espontânea: ${err.message}`, 'error', id);
                     });
-                }, 120000); // 2 minutos
+                }, 120000);
 
                 acc.interval = interval;
                 renderAccounts();
@@ -619,7 +652,7 @@
     }
 
     // ============================================================
-    // EVENTOS GLOBAIS
+    // EVENTOS DO DOM
     // ============================================================
 
     // Definir canal alvo
@@ -628,11 +661,32 @@
         const val = input.value.trim();
         if (val) {
             targetChannel = val;
-            addLog(`📡 Canal alvo definido para #${targetChannel}`, 'info');
             localStorage.setItem('twitchBotChannel', val);
+            addLog(`📡 Canal alvo definido para #${targetChannel}`, 'info');
         } else {
             addLog('⚠️ Digite um nome de canal válido.', 'error');
         }
+    });
+
+    // Adicionar conta manual
+    document.getElementById('addTokenBtn').addEventListener('click', function() {
+        const tokenInput = document.getElementById('manualTokenInput');
+        const userInput = document.getElementById('manualUsernameInput');
+        const token = tokenInput.value.trim();
+        const username = userInput.value.trim();
+
+        if (!token) {
+            addLog('⚠️ Cole o token OAuth.', 'error');
+            return;
+        }
+        if (!username) {
+            addLog('⚠️ Digite o nome de usuário (exatamente como na Twitch).', 'error');
+            return;
+        }
+
+        addManualAccount(token, username);
+        tokenInput.value = '';
+        userInput.value = '';
     });
 
     // Limpar logs
@@ -648,9 +702,6 @@
     // ============================================================
     handleOAuthRedirect();
 
-    // Se não houver contas, exibir mensagem
-    renderAccounts();
-
     // Carregar canal salvo
     const savedChannel = localStorage.getItem('twitchBotChannel');
     if (savedChannel) {
@@ -659,24 +710,21 @@
         addLog(`📡 Canal carregado: #${targetChannel}`, 'info');
     }
 
-    // Verificar se CLIENT_ID está configurado
-    if (!CLIENT_ID || CLIENT_ID === 'seu_client_id_aqui') {
-        document.getElementById('clientIdAlert').style.display = 'block';
-        document.getElementById('loginBtn').disabled = true;
-        addLog('⚠️ Configure o CLIENT_ID no código para habilitar o login.', 'error');
-    } else {
-        document.getElementById('loginBtn').disabled = false;
-    }
+    // Salvar canal quando alterado
+    document.getElementById('targetChannel').addEventListener('change', function() {
+        localStorage.setItem('twitchBotChannel', this.value.trim());
+    });
 
     // ============================================================
-    // EXPOR FUNÇÕES GLOBAIS (para os botões)
+    // EXPOR FUNÇÕES GLOBAIS
     // ============================================================
     window.toggleBot = toggleBot;
     window.removeAccount = removeAccount;
     window.addLog = addLog;
+    window.addManualAccount = addManualAccount;
 
     console.log('🤖 Sistema de bot multi-conta carregado.');
-    console.log('📌 Configure CLIENT_ID no código e faça login.');
+    console.log('📌 Para usar sem 2FA, gere um token em twitchtokengenerator.com e cole manualmente.');
 </script>
 
 </body>
